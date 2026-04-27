@@ -31,6 +31,10 @@
         <version.directory-maven-plugin>1.0</version.directory-maven-plugin>
         <version.maven-resources-plugin>3.4.0</version.maven-resources-plugin>
 
+        <!-- in Spigot's plugin.yml -->
+        <versions.adventure-platform-bukkit>4.4.1</versions.adventure-platform-bukkit>
+        <versions.adventure>4.20.0</versions.adventure> <!-- used by paper 1.21.4 -->
+
         <!-- settings for (paper-)plugin.yml -->
         <plugin.api-version>1.21.11</plugin.api-version>
 
@@ -50,6 +54,45 @@
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
     </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>26.0.2</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- coins-core and coins-spigot, goes in plugin.yml -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>net.kyori</groupId>
+                <artifactId>adventure-platform-bukkit</artifactId>
+                <version>${versions.adventure-platform-bukkit}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.kyori</groupId>
+                <artifactId>adventure-text-minimessage</artifactId>
+                <version>${versions.adventure}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.kyori</groupId>
+                <artifactId>adventure-text-serializer-legacy</artifactId>
+                <version>${versions.adventure}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.kyori</groupId>
+                <artifactId>adventure-text-serializer-plain</artifactId>
+                <version>${versions.adventure}</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <finalName>${project.artifactId}-${revision}</finalName>

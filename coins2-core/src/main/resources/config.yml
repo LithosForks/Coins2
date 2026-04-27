@@ -1,0 +1,31 @@
+# ------------------------------------------------------------- #
+#    █████████            ███                         ████████  #
+#   ███░░░░░███          ░░░                         ███░░░░███ #
+#  ███     ░░░   ██████  ████  ████████    █████    ░░░    ░███ #
+# ░███          ███░░███░░███░ ░███░░███  ███░░        ███████  #
+# ░███         ░███ ░███ ░███  ░███ ░███░ ░█████      ███░░░░   #
+# ░░███     ███░███ ░███ ░███  ░███ ░███  ░░░░███    ███      █ #
+#  ░░█████████ ░░██████  █████ ████ █████ ██████    ░██████████ #
+#   ░░░░░░░░░   ░░░░░░  ░░░░░░ ░░░ ░░░░░░ ░░░░░     ░░░░░░░░░░  #
+# ---------------------------------------------- by JustEli --- #
+
+# Defining and configuring the following parts can be done in a different config:
+#  - coins.yml      -> Different coin variants
+#  - commands.yml   -> All possible commands
+#  - drops.yml      -> Events to drop coins
+
+# Language to use for all messages of the plugin. All available languages can be found in
+#  the folder 'locale' of the plugin folder. Or create your own in the format 'xx-YY'.
+locale: 'en-US'
+
+# The type of economy to use Coins for.
+#  - 'none'       -> Nothing has been set, please configure!
+#  - 'physical'   -> Keep coins as physical items inside inventories
+#  - 'Vault'      -> Store coins as balances using Vault (Requires the plugin Vault)
+
+# The 'physical' economy is like an economy of withdrawn coins. This mode will also
+#  disable the /withdraw command.
+economy-type: 'none'
+
+# Show a message on start-up when an update is available for the plugin.
+notify-on-update: true
