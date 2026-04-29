@@ -9,6 +9,7 @@ public final class ConfigYml {
     @ConfigEntry("locale")
     public static String LOCALE = "en-US";
 
+    // todo move to coins.yml or drops.yml? different coins can be for different economies..
     @ConfigEntry("economy-type")
     public static EconomyType ECONOMY_TYPE = EconomyType.NONE;
 

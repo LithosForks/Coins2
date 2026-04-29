@@ -1,11 +1,14 @@
 package community.coins.plugin.api;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,4 +48,8 @@ public abstract class ItemParseApi {
 
     /// as intended from Registry.ITEM, allows creating NBT items
     public abstract Optional<ItemStack> getFromItemType(@Nullable String itemType);
+
+    public abstract void setDisplayName(ItemMeta meta, Component component, boolean immutable);
+
+    public abstract void setLore(ItemMeta meta, List<Component> components);
 }

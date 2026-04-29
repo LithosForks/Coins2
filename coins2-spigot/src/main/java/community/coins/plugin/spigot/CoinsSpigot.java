@@ -16,11 +16,14 @@ public final class CoinsSpigot extends CoinsCore {
     private ItemParseApiSpigot itemParseApiSpigot;
 
     @Override
-    public void onPluginLoad() {
+    public void beforeCoreLoaded() {
         this.pluginAttributesSpigot = new PluginAttributesSpigot(this);
         this.itemParseApiSpigot = new ItemParseApiSpigot(this);
+    }
 
-        getLogger().info("Loading CoinsSpigot");
+    @Override
+    public void afterCoreLoaded() {
+        getLogger().info("Loaded CoinsSpigot");
     }
 
     @Override

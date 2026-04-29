@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -54,7 +53,7 @@ public final class LanguageParser {
         if (!LOCALE_PATTERN.matcher(ConfigYml.LOCALE).matches()) {
             String corrected = toValidLocale(ConfigYml.LOCALE);
             if (corrected.isEmpty()) {
-                service.printWarning("""
+                service.addWarning("""
                     Found an incorrect locale in the config. Now using the default locale '%s'. \
                     Please use a locale from the 'locale' folder in Coins, or create your own in the format 'xx-YY'."""
                     .formatted(DEFAULT_LOCALE)
@@ -62,7 +61,7 @@ public final class LanguageParser {
                 ConfigYml.LOCALE = DEFAULT_LOCALE;
             }
             else {
-                service.printWarning("""
+                service.addWarning("""
                     Found an invalid locale '%s' in the config at `locale`. Change this to '%s'."""
                     .formatted(ConfigYml.LOCALE, corrected)
                 );
