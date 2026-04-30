@@ -9,17 +9,7 @@ import org.jspecify.annotations.NullMarked;
  * @since April 28, 2026
  */
 @NullMarked
-public record DefinedCoin(
-    String id,
-    ItemStack itemStack,
-    Component singularName,
-    Component pluralName,
-    boolean immutable,
-
-    // todo this will be saved ON the Item-entity
-    boolean itemMerge,
-    boolean hopperPickup
-) {
+public record DefinedCoin(String id, ItemStack itemStack, Component singularName, Component pluralName, boolean immutable) {
     public ItemStack getClonedCoin() {
         return itemStack.clone();
     }

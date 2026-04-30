@@ -1,10 +1,12 @@
 package community.coins.plugin.spigot;
 
 import community.coins.plugin.CoinsCore;
+import community.coins.plugin.api.ComponentApi;
 import community.coins.plugin.api.ItemParseApi;
 import community.coins.plugin.api.PluginAttributes;
-import community.coins.plugin.spigot.impl.ItemParseApiSpigot;
-import community.coins.plugin.spigot.impl.PluginAttributesSpigot;
+import community.coins.plugin.spigot.implement.ComponentApiSpigot;
+import community.coins.plugin.spigot.implement.ItemParseApiSpigot;
+import community.coins.plugin.spigot.implement.PluginAttributesSpigot;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,13 +14,15 @@ import org.jetbrains.annotations.NotNull;
  * @since April 27, 2026
  */
 public final class CoinsSpigot extends CoinsCore {
-    private PluginAttributesSpigot pluginAttributesSpigot;
-    private ItemParseApiSpigot itemParseApiSpigot;
+    private ComponentApi componentApi;
+    private ItemParseApi itemParseApi;
+    private PluginAttributes pluginAttributes;
 
     @Override
     public void beforeCoreLoaded() {
-        this.pluginAttributesSpigot = new PluginAttributesSpigot(this);
-        this.itemParseApiSpigot = new ItemParseApiSpigot(this);
+        this.componentApi = new ComponentApiSpigot();
+        this.itemParseApi = new ItemParseApiSpigot(this);
+        this.pluginAttributes = new PluginAttributesSpigot(this);
     }
 
     @Override
@@ -27,12 +31,17 @@ public final class CoinsSpigot extends CoinsCore {
     }
 
     @Override
-    public @NotNull PluginAttributes getAttributes() {
-        return pluginAttributesSpigot;
+    public @NotNull ComponentApi getComponentApi() {
+        return componentApi;
     }
 
     @Override
     public @NotNull ItemParseApi getItemParseApi() {
-        return itemParseApiSpigot;
+        return itemParseApi;
+    }
+
+    @Override
+    public @NotNull PluginAttributes getAttributes() {
+        return pluginAttributes;
     }
 }

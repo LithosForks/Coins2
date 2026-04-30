@@ -2,11 +2,13 @@ package community.coins.plugin.paper;
 
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import community.coins.plugin.CoinsCore;
+import community.coins.plugin.api.ComponentApi;
 import community.coins.plugin.api.ItemParseApi;
 import community.coins.plugin.api.PluginAttributes;
-import community.coins.plugin.paper.commands.TestCommand;
-import community.coins.plugin.paper.impl.ItemParseApiPaper;
-import community.coins.plugin.paper.impl.PluginAttributesPaper;
+import community.coins.plugin.paper.commands.TestLogic;
+import community.coins.plugin.paper.implement.ComponentApiPaper;
+import community.coins.plugin.paper.implement.ItemParseApiPaper;
+import community.coins.plugin.paper.implement.PluginAttributesPaper;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.jetbrains.annotations.NotNull;
@@ -18,18 +20,20 @@ import java.util.Collection;
  * @since April 27, 2026
  */
 public final class CoinsPaper extends CoinsCore {
-    private PluginAttributesPaper pluginAttributesPaper;
-    private ItemParseApiPaper itemParseApiPaper;
+    private ComponentApi componentApi;
+    private ItemParseApi itemParseApi;
+    private PluginAttributes pluginAttributes;
 
     @Override
     public void beforeCoreLoaded() {
-        this.pluginAttributesPaper = new PluginAttributesPaper(this);
-        this.itemParseApiPaper = new ItemParseApiPaper(this);
+        this.componentApi = new ComponentApiPaper();
+        this.itemParseApi = new ItemParseApiPaper(this);
+        this.pluginAttributes = new PluginAttributesPaper(this);
     }
 
     @Override
     public void afterCoreLoaded() {
-        new TestCommand(this);
+        new TestLogic(this);
         getLogger().info("Loaded CoinsPaper");
     }
 
@@ -41,12 +45,17 @@ public final class CoinsPaper extends CoinsCore {
     }
 
     @Override
-    public @NotNull PluginAttributes getAttributes() {
-        return pluginAttributesPaper;
+    public @NotNull ComponentApi getComponentApi() {
+        return componentApi;
     }
 
     @Override
     public @NotNull ItemParseApi getItemParseApi() {
-        return itemParseApiPaper;
+        return itemParseApi;
+    }
+
+    @Override
+    public @NotNull PluginAttributes getAttributes() {
+        return pluginAttributes;
     }
 }

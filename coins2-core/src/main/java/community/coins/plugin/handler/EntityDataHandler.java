@@ -2,11 +2,14 @@ package community.coins.plugin.handler;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.data.TransformType;
+import community.coins.plugin.util.EntityUtil;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 
 import java.util.Optional;
@@ -15,17 +18,18 @@ import java.util.Optional;
  * @author Eli
  * @since April 29, 2026
  */
-public final class MobTransformHandler implements Listener {
+public final class EntityDataHandler implements Listener {
     private final CoinsCore coins;
-    public MobTransformHandler(CoinsCore coins) {
+    public EntityDataHandler(CoinsCore coins) {
         this.coins = coins;
         coins.parseEventHandlers(this);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     void onCreatureSpawnEvent(CreatureSpawnEvent event) {
         if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER || event.getEntityType() == EntityType.CAVE_SPIDER) {
             coins.getPersistentData().setTransformType(event.getEntity(), TransformType.FROM_SPAWNER);
+            // btw Paper has Entity#fromMobSpawner
         }
         else if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SLIME_SPLIT) {
             coins.getPersistentData().setTransformType(event.getEntity(), TransformType.FROM_SPLIT);
@@ -38,7 +42,7 @@ public final class MobTransformHandler implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     void onEntityTransformEvent(EntityTransformEvent event) {
         Optional<TransformType> type = coins.getPersistentData().getTransformType(event.getEntity());
         boolean fromSpawner = type.isPresent() && type.get() == TransformType.FROM_SPAWNER;
@@ -50,5 +54,20 @@ public final class MobTransformHandler implements Listener {
                 coins.getPersistentData().setTransformType(entity, TransformType.FROM_SPAWNER);
             }
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
+        Optional<Entity> attacker = EntityUtil.getRootOfDamage(event.getDamager());
+        if (attacker.isEmpty() || !(attacker.get() instanceof Player)) {
+            return;
+        }
+
+        var entity = event.getEntity();
+        if (entity instanceof Player) {
+            return;
+        }
+
+        coins.getPersistentData().addPlayerDamage(entity, event.getFinalDamage());
     }
 }
