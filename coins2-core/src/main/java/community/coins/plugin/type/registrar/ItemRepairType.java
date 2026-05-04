@@ -2,7 +2,6 @@ package community.coins.plugin.type.registrar;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.type.EventTypeService;
-import community.coins.plugin.type.api.EventType;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -26,7 +25,7 @@ public final class ItemRepairType extends EventType {
             .hasTargetType()
             .hasLocationWorld()
             .hasLocationCooldown();
-        super(coins, service, "item_repair", filter);
+        super(coins, service, "item_repair", filter.build());
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#item_repair
@@ -107,13 +106,12 @@ public final class ItemRepairType extends EventType {
         }
 
         var block = anvil.getLocation().getBlock();
-        var filter = createForm()
+        var filter = createFilter()
             .withInitiatorEntity(player)
             .withTargetType(rightType)
             .withLocationWorld(block.getWorld())
-            .withLocationCooldown(block.getLocation())
-            .build();
+            .withLocationCooldown(block.getLocation());
 
-        filterEvent(filter).thenDrop(block.getRelative(BlockFace.UP));
+        callEvent(filter, block.getRelative(BlockFace.UP));
     }
 }

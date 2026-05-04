@@ -2,7 +2,6 @@ package community.coins.plugin.type.registrar;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.type.EventTypeService;
-import community.coins.plugin.type.api.EventType;
 import org.bukkit.GameMode;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.Player;
@@ -18,7 +17,7 @@ public final class RecipeUnlockType extends EventType {
         var filter = service.filterBuilder()
             .hasInitiatorPlayer()
             .hasLocationWorld();
-        super(coins, service, "recipe_unlock", filter);
+        super(coins, service, "recipe_unlock", filter.build());
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#recipe_unlock
@@ -36,11 +35,10 @@ public final class RecipeUnlockType extends EventType {
         }
 
         // todo #setTarget for Material
-        var filter = createForm()
+        var filter = createFilter()
             .withInitiatorEntity(player)
-            .withLocationWorld(player.getWorld())
-            .build();
+            .withLocationWorld(player.getWorld());
 
-        filterEvent(filter).thenDrop(player.getLocation());
+        callEvent(filter, player.getLocation());
     }
 }

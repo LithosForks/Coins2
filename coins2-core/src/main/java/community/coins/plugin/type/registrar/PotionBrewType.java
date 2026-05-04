@@ -2,7 +2,6 @@ package community.coins.plugin.type.registrar;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.type.EventTypeService;
-import community.coins.plugin.type.api.EventType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.BrewEvent;
 
@@ -15,8 +14,7 @@ public final class PotionBrewType extends EventType {
         var filter = service.filterBuilder()
             .hasLocationWorld()
             .hasLocationCooldown();
-
-        super(coins, service, "potion_brew", filter);
+        super(coins, service, "potion_brew", filter.build());
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#potion_brew
@@ -27,11 +25,10 @@ public final class PotionBrewType extends EventType {
         // todo get player from who brewed it
 
         var block = event.getBlock();
-        var filter = createForm()
+        var filter = createFilter()
             .withLocationWorld(block.getWorld())
-            .withLocationCooldown(block.getLocation())
-            .build();
+            .withLocationCooldown(block.getLocation());
 
-        filterEvent(filter).thenDrop(event.getBlock());
+        callEvent(filter, event.getBlock());
     }
 }

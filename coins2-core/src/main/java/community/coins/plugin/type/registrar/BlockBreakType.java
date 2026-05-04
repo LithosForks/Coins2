@@ -2,7 +2,6 @@ package community.coins.plugin.type.registrar;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.type.EventTypeService;
-import community.coins.plugin.type.api.EventType;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -27,7 +26,7 @@ public final class BlockBreakType extends EventType {
             .hasTargetAllowSameBlock()
             .hasLocationWorld()
             .hasLocationCooldown();
-        super(coins, service, "block_break", filter);
+        super(coins, service, "block_break", filter.build());
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#block_break
@@ -41,16 +40,15 @@ public final class BlockBreakType extends EventType {
         }
 
         var block = event.getBlock();
-        var filter = createForm()
+        var filter = createFilter()
             .withInitiatorEntity(player)
             .withTargetType(block.getType())
             .withTargetXpDrop(event.getExpToDrop())
             .withTargetSameBlock(isSameDrop(block, player))
             .withLocationWorld(block.getWorld())
-            .withLocationCooldown(block.getLocation())
-            .build();
+            .withLocationCooldown(block.getLocation());
 
-        filterEvent(filter).thenDrop(block);
+        callEvent(filter, block);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -64,13 +62,12 @@ public final class BlockBreakType extends EventType {
             return;
         }
 
-        var filter = createForm()
+        var filter = createFilter()
             .withInitiatorEntity(enderman)
             .withTargetType(block.getType())
-            .withLocationWorld(block.getWorld())
-            .build();
+            .withLocationWorld(block.getWorld());
 
-        filterEvent(filter).thenDrop(block);
+        callEvent(filter, block);
     }
 
     /// the block material that is mined is exactly the same as the item it drops

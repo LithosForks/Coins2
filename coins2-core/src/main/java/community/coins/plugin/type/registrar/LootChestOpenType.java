@@ -2,7 +2,6 @@ package community.coins.plugin.type.registrar;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.type.EventTypeService;
-import community.coins.plugin.type.api.EventType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.world.LootGenerateEvent;
@@ -16,7 +15,7 @@ public final class LootChestOpenType extends EventType {
         var filter = service.filterBuilder()
             .hasInitiatorPlayer()
             .hasLocationWorld();
-        super(coins, service, "loot_chest_open", filter);
+        super(coins, service, "loot_chest_open", filter.build());
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#loot_chest_open
@@ -28,11 +27,10 @@ public final class LootChestOpenType extends EventType {
         }
 
         // todo maybe add filter for block/entity type: minecart_chest, barrel, etc.
-        var filter = createForm()
+        var filter = createFilter()
             .withInitiatorEntity(player)
-            .withLocationWorld(player.getWorld())
-            .build();
+            .withLocationWorld(player.getWorld());
 
-        filterEvent(filter).thenConsume(coins -> coins.forEach(coin -> event.getLoot().add(coin)));
+        callEvent(filter, coins -> coins.forEach(coin -> event.getLoot().add(coin)));
     }
 }

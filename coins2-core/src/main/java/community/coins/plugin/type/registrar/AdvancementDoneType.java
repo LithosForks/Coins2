@@ -2,8 +2,8 @@ package community.coins.plugin.type.registrar;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.type.EventTypeService;
-import community.coins.plugin.type.api.EventType;
 import org.bukkit.GameMode;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
@@ -18,7 +18,7 @@ public final class AdvancementDoneType extends EventType {
             .hasInitiatorPlayer()
             .hasTargetType()
             .hasLocationWorld();
-        super(coins, service, "advancement_done", filter);
+        super(coins, service, "advancement_done", filter.build());
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#advancement_done
@@ -31,17 +31,16 @@ public final class AdvancementDoneType extends EventType {
         }
 
         // todo NoSuchMethodError
-//        Advancement advancement = event.getAdvancement();
-//        if (advancement.getDisplay() == null) {
-//            return;
-//        }
-//
-//        var filter = createForm()
-//            .withInitiatorEntity(player)
-//            .withTargetType(advancement)
-//            .withLocationWorld(player.getLocation().getWorld())
-//            .build();
-//
-//        filterEvent(filter).thenDrop(player.getLocation());
+        Advancement advancement = event.getAdvancement();
+        if (advancement.getDisplay() == null) {
+            return;
+        }
+
+        var filter = createFilter()
+            .withInitiatorEntity(player)
+            .withTargetType(advancement)
+            .withLocationWorld(player.getLocation().getWorld());
+
+        callEvent(filter, player.getLocation());
     }
 }

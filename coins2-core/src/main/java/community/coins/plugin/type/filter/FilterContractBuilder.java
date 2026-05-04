@@ -1,26 +1,27 @@
 package community.coins.plugin.type.filter;
 
 import community.coins.plugin.CoinsCore;
+import community.coins.plugin.type.registrar.EventType;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * this has all the entries of what is allowed (in the config) for this event filter
  * @author Eli
  * @since May 02, 2026
  */
-public final class EventFilterBuilder {
+public final class FilterContractBuilder {
     private final CoinsCore coins;
-    public EventFilterBuilder(CoinsCore coins) {
+    public FilterContractBuilder(CoinsCore coins) {
         this.coins = coins;
     }
 
-    public EventFilter build(String identifier) {
-        return new EventFilter(coins, allowedPaths, identifier);
+    public FilterContract build() {
+        return new FilterContract(coins, allowedPaths);
     }
 
     // allowed paths in the config
-    // of all these are implemented in EventFilter
     private final Set<String> allowedPaths = new HashSet<>();
 
     // initiator
@@ -29,68 +30,62 @@ public final class EventFilterBuilder {
         allowedPaths.add(type + "." + path);
     }
 
-    public EventFilterBuilder hasInitiatorPlayer() {
+    public FilterContractBuilder hasInitiatorPlayer() {
         allows("initiator", "permission");
         return this;
     }
 
-    public EventFilterBuilder hasInitiatorEntity() {
+    public FilterContractBuilder hasInitiatorEntity() {
         allows("initiator", "type");
         return this;
     }
 
-    public EventFilterBuilder hasInitiatorAny() {
+    public FilterContractBuilder hasInitiatorAny() {
         allows("initiator", "any");
         return this;
     }
 
     // target
 
-    // todo allow multiplier to be set on the type. for example
-    // type:
-    //   'diamond_ore': 5
-    //   'gold_ore': 2
-    // instead of
-    // type: [diamond_ore, gold_ore]
-    public EventFilterBuilder hasTargetType() {
+    public FilterContractBuilder hasTargetType() {
         allows("target", "type");
         return this;
     }
 
-    public EventFilterBuilder hasTargetEntity() {
+    public FilterContractBuilder hasTargetEntity() {
         allows("target", "type");
         allows("target", "category");
         return this;
     }
 
-    public EventFilterBuilder hasTargetMinXpDrop() {
+    public FilterContractBuilder hasTargetMinXpDrop() {
         allows("target", "min-xp-drop");
         return this;
     }
 
-    public EventFilterBuilder hasTargetAllowSameBlock() {
+    public FilterContractBuilder hasTargetAllowSameBlock() {
         allows("target", "allow-same-block");
         return this;
     }
 
-    public EventFilterBuilder hasTargetPreventAlts() {
+    public FilterContractBuilder hasTargetPreventAlts() {
         allows("target", "prevent-alts");
         return this;
     }
 
-    public EventFilterBuilder hasTargetMinPlayerDamage() {
+    public FilterContractBuilder hasTargetMinPlayerDamage() {
         allows("target", "min-player-damage");
         return this;
     }
 
     // location
 
-    public EventFilterBuilder hasLocationWorld() {
+    public FilterContractBuilder hasLocationWorld() {
         allows("location", "disabled-worlds");
         return this;
     }
 
-    public EventFilterBuilder hasLocationCooldown() {
+    public FilterContractBuilder hasLocationCooldown() {
         allows("location", "cooldown.cap-amount");
         allows("location", "cooldown.duration");
         return this;

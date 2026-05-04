@@ -1,8 +1,10 @@
 package community.coins.plugin.config;
 
 import community.coins.plugin.CoinsCore;
+import community.coins.plugin.drops.DefinedCoinDrop;
 import community.coins.plugin.drops.DefinedDrop;
-import community.coins.plugin.type.api.EventType;
+import community.coins.plugin.type.filter.EventFilterConfig;
+import community.coins.plugin.type.registrar.EventType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,11 +54,15 @@ public final class DropsConfig implements FileConfig<DefinedDrop> {
             return;
         }
 
+        // first we clear all registered drops, because we re-register them down here
+        coins.getEventTypeService().clearRegisteredDrops();
+
         Map<String, DefinedDrop> configured = new HashMap<>();
         for (String dropName : section.getKeys(false)) {
             ConfigurationSection drop = section.getConfigurationSection(dropName);
             if (drop == null) {
-                continue; // todo maybe a warning (also in CoinsConfig.java)
+                coins.debug("Skipping drops config entry for '%s', as nothing is configured.".formatted(dropName));
+                continue; // almost impossible i believe
             }
 
             String definedEvent = drop.getString("event"); // predefined event in the plugin
@@ -65,23 +71,40 @@ public final class DropsConfig implements FileConfig<DefinedDrop> {
                 continue;
             }
 
-            boolean enabled = drop.contains("enabled") && !drop.getBoolean("enabled");
-            if (!enabled) {
+            boolean disabled = drop.contains("enabled") && !drop.getBoolean("enabled");
+            if (disabled) {
+                coins.debug("Skipping drops config entry for '%s', as it is disabled.".formatted(dropName));
                 continue; // drop is not enabled
             }
 
             Optional<EventType> eventType = coins.getEventTypeService().getEventType(definedEvent.toLowerCase());
             if (eventType.isEmpty()) {
-                service.printConfigWarning(getFileName(), "Invalid event type '%s' found for drop '%s' at `%s`.".formatted(
-                    definedEvent, dropName, "event"
-                ));
+                service.printConfigWarning(getFileName(), """
+                    Invalid event type '%s' found for drop '%s' at `event`. Supported types are: %s"""
+                    .formatted(definedEvent, dropName, coins.getEventTypeService().getEventTypeNames())
+                );
                 continue;
             }
 
-            // todo handle section 'filters' with DefinedDrop and EventType
-            // todo implement
-            ConfigurationSection filters = drop.getConfigurationSection("filters"); // can be null!
-            eventType.get().getFilter().applyConfig(filters, definedEvent.toLowerCase());
+            EventType event = eventType.get();
+
+            // get a filter config from the event type's filter contract
+            ConfigurationSection filtersSection = drop.getConfigurationSection("filters"); // can be null!
+            EventFilterConfig filterConfig = event.getFilterContract().getFilterConfig(
+                filtersSection, definedEvent.toLowerCase()
+            );
+
+            // create a DefinedCoinDrop from the "coins" section
+            ConfigurationSection coinsSection = drop.getConfigurationSection("coins");
+            DefinedCoinDrop definedCoinDrop = DefinedCoinDrop.of(coins, service, coinsSection);
+
+            // now we have a DefinedDrop with EventType, EventFilterConfig and DefinedCoinDrop
+            DefinedDrop definedDrop = new DefinedDrop(dropName, filterConfig, definedCoinDrop);
+
+            // register the DefinedDrop to EventType
+            event.registerDrop(definedDrop);
+
+            configured.put(dropName, definedDrop);
             coins.debug("Registered drop '%s' for event type '%s'.".formatted(dropName, definedEvent));
         }
 

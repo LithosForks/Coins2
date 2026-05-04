@@ -2,7 +2,6 @@ package community.coins.plugin.type.registrar;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.type.EventTypeService;
-import community.coins.plugin.type.api.EventType;
 import org.bukkit.Keyed;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
@@ -22,7 +21,7 @@ public final class ItemEnchantType extends EventType {
             .hasTargetType()
             .hasLocationWorld()
             .hasLocationCooldown();
-        super(coins, service, "item_enchant", filter);
+        super(coins, service, "item_enchant", filter.build());
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#item_enchant
@@ -33,13 +32,12 @@ public final class ItemEnchantType extends EventType {
         Collection<Keyed> enchants = new HashSet<>(event.getEnchantsToAdd().keySet());
         var block = event.getEnchantBlock();
 
-        var filter = createForm()
+        var filter = createFilter()
             .withInitiatorEntity(event.getEnchanter())
             .withTargetType(enchants)
             .withLocationWorld(block.getWorld())
-            .withLocationCooldown(block.getLocation())
-            .build();
+            .withLocationCooldown(block.getLocation());
 
-        filterEvent(filter).thenDrop(block.getRelative(BlockFace.UP));
+        callEvent(filter, block.getRelative(BlockFace.UP));
     }
 }

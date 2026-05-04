@@ -40,7 +40,7 @@ public final class CoinMeta {
 
     public CoinMeta(BasicPlugin plugin) {
         this.plugin = plugin;
-        var manager = Bukkit.getScoreboardManager();
+        var manager = plugin.getServer().getScoreboardManager();
         if (manager != null) {
             this.scoreboard = manager.getMainScoreboard();
         }
@@ -71,12 +71,12 @@ public final class CoinMeta {
         return item.getItemMeta().getPersistentDataContainer().has(valueKey, PersistentDataType.DOUBLE);
     }
 
-    public void setCoinValue(ItemStack item, double amount) {
-        if (item == null || item.getItemMeta() == null || amount <= 0) {
+    public void setCoinValue(ItemMeta meta, double amount) {
+        if (meta == null ||  amount <= 0) {
             return;
         }
 
-        item.getItemMeta().getPersistentDataContainer().set(valueKey, PersistentDataType.DOUBLE, amount);
+        meta.getPersistentDataContainer().set(valueKey, PersistentDataType.DOUBLE, amount);
     }
 
     public OptionalDouble getCoinValue(ItemStack item) {
@@ -108,12 +108,12 @@ public final class CoinMeta {
         }
     }
 
-    public void setWithdrawOwner(ItemStack item, UUID uuid) {
-        if (item == null || item.getItemMeta() == null) {
+    public void setWithdrawOwner(ItemMeta meta, UUID uuid) {
+        if (meta == null) {
             return;
         }
 
-        item.getItemMeta().getPersistentDataContainer().set(withdrawnKey, PersistentDataType.STRING, uuid.toString());
+        meta.getPersistentDataContainer().set(withdrawnKey, PersistentDataType.STRING, uuid.toString());
     }
 
     // set meta of a coin

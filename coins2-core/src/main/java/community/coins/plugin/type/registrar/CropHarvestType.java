@@ -2,7 +2,6 @@ package community.coins.plugin.type.registrar;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.type.EventTypeService;
-import community.coins.plugin.type.api.EventType;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -25,7 +24,7 @@ public final class CropHarvestType extends EventType {
             .hasTargetType()
             .hasLocationWorld()
             .hasLocationCooldown();
-        super(coins, service, "crop_harvest", filter);
+        super(coins, service, "crop_harvest", filter.build());
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#crop_harvest
@@ -42,14 +41,13 @@ public final class CropHarvestType extends EventType {
             return;
         }
 
-        var filter = createForm()
+        var filter = createFilter()
             .withInitiatorEntity(player)
             .withTargetType(event.getBlock().getType())
             .withLocationWorld(block.getWorld())
-            .withLocationCooldown(block.getLocation())
-            .build();
+            .withLocationCooldown(block.getLocation());
 
-        filterEvent(filter).thenDrop(block);
+        callEvent(filter, block);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -67,14 +65,13 @@ public final class CropHarvestType extends EventType {
             return;
         }
 
-        var filter = createForm()
+        var filter = createFilter()
             .withInitiatorEntity(villager)
             .withTargetType(event.getTo())
             .withLocationWorld(block.getWorld())
-            .withLocationCooldown(block.getLocation())
-            .build();
+            .withLocationCooldown(block.getLocation());
 
-        filterEvent(filter).thenDrop(block);
+        callEvent(filter, block);
     }
 
     private static boolean isCrop(Block block) {

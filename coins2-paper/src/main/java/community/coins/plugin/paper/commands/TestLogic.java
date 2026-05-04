@@ -2,12 +2,17 @@ package community.coins.plugin.paper.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import community.coins.plugin.CoinsCore;
+import community.coins.plugin.component.ColorResolver;
 import community.coins.plugin.item.DefinedCoin;
 import community.coins.plugin.paper.CoinsPaper;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.List;
@@ -19,14 +24,33 @@ import java.util.stream.Collectors;
  * @since April 28, 2026
  */
 public final class TestLogic implements Listener {
+    private final CoinsCore coins;
     private final NamespacedKey key;
 
+    @EventHandler // for testing only
+    void onEntityPickupItemEvent(EntityPickupItemEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+
+        var item = event.getItem().getItemStack();
+        if (!coins.getCoinService().getCoinMeta().isCoin(item)) {
+            return;
+        }
+
+        double value = coins.getCoinService().getCoinMeta().getCoinValue(item).orElse(0D);
+        player.sendActionBar(Component.text(value, ColorResolver.MONEY));
+        event.setCancelled(true);
+        event.getItem().remove();
+    }
+
     public TestLogic(CoinsPaper coins) {
+        this.coins = coins;
         this.key = NamespacedKey.fromString("test_key", coins);
         coins.parseEventHandlers(this);
 
         coins.registerCommand(
-            Commands.literal("givecoin")
+            Commands.literal("coins")
             .requires(source -> source.getSender().hasPermission("coins.admin"))
             .then(
                 Commands.literal("reload")
@@ -94,7 +118,7 @@ public final class TestLogic implements Listener {
             )
             .build(),
             "Test command",
-            List.of("coingive")
+            List.of("coin")
         );
     }
 }

@@ -2,7 +2,6 @@ package community.coins.plugin.type.registrar;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.type.EventTypeService;
-import community.coins.plugin.type.api.EventType;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerFishEvent;
@@ -19,7 +18,7 @@ public final class EntityCatchType extends EventType {
             .hasTargetMinXpDrop()
             .hasLocationWorld()
             .hasLocationCooldown();
-        super(coins, service, "entity_catch", filter);
+        super(coins, service, "entity_catch", filter.build());
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#entity_catch
@@ -30,14 +29,13 @@ public final class EntityCatchType extends EventType {
             return;
         }
 
-        var filter = createForm()
+        var filter = createFilter()
             .withInitiatorEntity(event.getPlayer())
             .withTargetEntity(event.getCaught())
             .withTargetXpDrop(event.getExpToDrop())
             .withLocationWorld(item.getWorld())
-            .withLocationCooldown(item.getLocation())
-            .build();
+            .withLocationCooldown(item.getLocation());
 
-        filterEvent(filter).thenDrop(item.getLocation()); // todo test, otherwise player.getLocation()
+        callEvent(filter, item.getLocation()); // todo test, otherwise player.getLocation()
     }
 }

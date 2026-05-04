@@ -3,92 +3,74 @@ package community.coins.plugin.type.filter;
 import community.coins.plugin.CoinsCore;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * this contract has all paths that are allowed in the config for defining a drop
  * @author Eli
  * @since May 02, 2026
  */
-public final class EventFilter {
+public final class FilterContract {
     private final CoinsCore coins;
     private final Set<String> configPaths;
-    private final String eventIdentifier;
 
-    public EventFilter(CoinsCore coins, Set<String> configPaths, String eventIdentifier) {
+    public FilterContract(CoinsCore coins, Set<String> configPaths) {
         this.coins = coins;
         this.configPaths = configPaths;
-        this.eventIdentifier = eventIdentifier;
     }
 
-    public EventFilterFormBuilder createForm() {
-        return new EventFilterFormBuilder(coins, this);
-    }
-
-    private final AtomicReference<FilterConfig> filterConfig = new AtomicReference<>(null);
-
-    public Optional<FilterConfig> getFilterConfig() {
-        return Optional.ofNullable(filterConfig.get());
-    }
-
-    public String getEventIdentifier() {
-        return eventIdentifier;
-    }
-
-    public void applyConfig(@Nullable ConfigurationSection config, String eventType) {
+    // get a FilterConfig based on the contract (of the event)
+    public @NotNull EventFilterConfig getFilterConfig(@Nullable ConfigurationSection config, String eventType) {
         if (config == null) {
-            filterConfig.set(new FilterConfig()); // no filters
-            return;
+            return new EventFilterConfig(); // no filters
         }
 
-        filterConfig.set(null);
-
-        var filter = new FilterConfig();
+        var filter = new EventFilterConfig();
         if (contains("initiator.permission", config)) {
-            filter.initiatorPermission = config.getString("initiator.permission");
+            filter.setInitiatorPermission(config.getString("initiator.permission"));
         }
         if (contains("initiator.type", config)) {
             List<String> values = config.getStringList("initiator.type");
-            filter.initiatorType = toNamespacedKeys(values, eventType);
+            filter.setInitiatorType(toNamespacedKeys(values, eventType));
         }
         if (contains("initiator.any", config)) {
-            filter.initiatorAny = config.getBoolean("initiator.any");
+            filter.setInitiatorAny(config.getBoolean("initiator.any"));
         }
         if (contains("target.type", config)) {
             List<String> values = config.getStringList("target.type");
-            filter.targetType = toNamespacedKeys(values, eventType);
+            filter.setTargetType(toNamespacedKeys(values, eventType));
         }
         if (contains("target.category", config)) {
             List<String> values = config.getStringList("target.category");
-            filter.targetCategory = new HashSet<>(values);
+            filter.setTargetCategory(new HashSet<>(values));
         }
         if (contains("target.min-xp-drop", config)) {
-            filter.targetMinXpDrop = config.getInt("target.min-xp-drop");
+            filter.setTargetMinXpDrop(config.getInt("target.min-xp-drop"));
         }
         if (contains("target.allow-same-block", config)) {
-            filter.targetAllowSameBlock = config.getBoolean("target.allow-same-block");
+            filter.setTargetAllowSameBlock(config.getBoolean("target.allow-same-block"));
         }
         if (contains("target.prevent-alts", config)) {
-            filter.targetPreventAlts = config.getBoolean("target.prevent-alts");
+            filter.setTargetPreventAlts(config.getBoolean("target.prevent-alts"));
         }
         if (contains("target.min-player-damage", config)) {
-            filter.targetMinPlayerDamage = config.getDouble("target.min-player-damage");
+            filter.setTargetMinPlayerDamage(config.getDouble("target.min-player-damage"));
         }
         if (contains("location.disabled-worlds", config)) {
             List<String> values = config.getStringList("location.disabled-worlds");
-            filter.locationDisabledWorlds = new HashSet<>(values);
+            filter.setLocationDisabledWorlds(new HashSet<>(values));
         }
         if (contains("location.cooldown.cap-amount", config) && contains(config.getString("location.cooldown.duration"), config)) {
-            filter.locationCooldownCapAmount = config.getInt("location.cooldown.cap-amount");
-            filter.locationCooldownDuration = config.getString("location.cooldown.duration");
+            filter.setLocationCooldownCapAmount(config.getInt("location.cooldown.cap-amount"));
+            filter.setLocationCooldownDuration(config.getString("location.cooldown.duration"));
         }
 
-        filterConfig.set(filter);
+        return filter;
     }
 
     private boolean contains(String path, ConfigurationSection section) {

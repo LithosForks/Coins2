@@ -2,8 +2,8 @@ package community.coins.plugin.type.registrar;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.type.EventTypeService;
-import community.coins.plugin.type.api.EventType;
 import community.coins.plugin.util.EntityUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -26,7 +26,7 @@ public final class EntityDeathType extends EventType {
             .hasTargetMinPlayerDamage()
             .hasLocationWorld()
             .hasLocationCooldown();
-        super(coins, service, "entity_death", filter);
+        super(coins, service, "entity_death", filter.build());
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#entity_death
@@ -40,15 +40,13 @@ public final class EntityDeathType extends EventType {
 
         Entity root = EntityUtil.getRootAttacker(dead).orElse(null);
 
-        var filter = createForm()
+        var filter = createFilter()
             .withInitiatorEntity(root)
             .withTargetEntity(dead)
             .withTargetXpDrop(event.getDroppedExp())
-            .withTargetPreventAlts(root, dead)
             .withLocationWorld(dead.getWorld())
-            .withLocationCooldown(dead.getLocation())
-            .build();
+            .withLocationCooldown(dead.getLocation());
 
-        filterEvent(filter).thenDrop(event.getEntity().getLocation());
+        callEvent(filter, dead.getLocation());
     }
 }

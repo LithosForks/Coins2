@@ -2,7 +2,6 @@ package community.coins.plugin.type.registrar;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.type.EventTypeService;
-import community.coins.plugin.type.api.EventType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityBreedEvent;
@@ -18,7 +17,7 @@ public final class EntityBreedType extends EventType {
             .hasTargetEntity()
             .hasLocationWorld()
             .hasLocationCooldown();
-        super(coins, service, "entity_breed", filter);
+        super(coins, service, "entity_breed", filter.build());
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#entity_breed
@@ -30,13 +29,12 @@ public final class EntityBreedType extends EventType {
         }
 
         var baby = event.getEntity();
-        var filter = createForm()
+        var filter = createFilter()
             .withInitiatorEntity(player)
             .withTargetEntity(baby)
             .withLocationWorld(baby.getWorld())
-            .withLocationCooldown(baby.getLocation())
-            .build();
+            .withLocationCooldown(baby.getLocation());
 
-        filterEvent(filter).thenDrop(baby.getLocation());
+        callEvent(filter, baby.getLocation());
     }
 }

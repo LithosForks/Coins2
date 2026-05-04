@@ -2,7 +2,6 @@ package community.coins.plugin.type.registrar;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.type.EventTypeService;
-import community.coins.plugin.type.api.EventType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
@@ -19,7 +18,7 @@ public final class EntityTameType extends EventType {
             .hasTargetEntity()
             .hasLocationWorld()
             .hasLocationCooldown();
-        super(coins, service, "entity_tame", filter);
+        super(coins, service, "entity_tame", filter.build());
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#entity_tame
@@ -34,13 +33,12 @@ public final class EntityTameType extends EventType {
             return;
         }
 
-        var filter = createForm()
+        var filter = createFilter()
             .withInitiatorEntity(player)
             .withTargetEntity(tameable)
             .withLocationWorld(tameable.getWorld())
-            .withLocationCooldown(tameable.getLocation())
-            .build();
+            .withLocationCooldown(tameable.getLocation());
 
-        filterEvent(filter).thenDrop(tameable.getLocation());
+        callEvent(filter, tameable.getLocation());
     }
 }

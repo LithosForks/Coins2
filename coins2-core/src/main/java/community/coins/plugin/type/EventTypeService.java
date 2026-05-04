@@ -1,7 +1,7 @@
 package community.coins.plugin.type;
 
 import community.coins.plugin.CoinsCore;
-import community.coins.plugin.type.api.EventType;
+import community.coins.plugin.type.registrar.EventType;
 import community.coins.plugin.type.registrar.AdvancementDoneType;
 import community.coins.plugin.type.registrar.BlockBreakType;
 import community.coins.plugin.type.registrar.CropHarvestType;
@@ -14,11 +14,14 @@ import community.coins.plugin.type.registrar.ItemRepairType;
 import community.coins.plugin.type.registrar.LootChestOpenType;
 import community.coins.plugin.type.registrar.PotionBrewType;
 import community.coins.plugin.type.registrar.RecipeUnlockType;
-import community.coins.plugin.type.filter.EventFilterBuilder;
+import community.coins.plugin.type.filter.FilterContractBuilder;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Eli
@@ -43,19 +46,27 @@ public final class EventTypeService {
         new RecipeUnlockType(coins, this);
     }
 
-    private final Map<String, EventType> eventTypes = new HashMap<>();
+    // get the event type for example to register a drop to it
+    private final Map<String, EventType> eventTypes = new ConcurrentHashMap<>();
 
-    // only for EventType
-    public void registerEventType(String identifier, EventType registrar) {
-        coins.parseEventHandlers(registrar);
-        eventTypes.put(identifier, registrar);
+    public void registerEventType(EventType type) {
+        coins.parseEventHandlers(type);
+        eventTypes.put(type.getIdentifier(), type);
+    }
+
+    public void clearRegisteredDrops() {
+        eventTypes.forEach((_, type) -> type.clearRegisteredDrops());
     }
 
     public Optional<EventType> getEventType(String key) {
         return Optional.ofNullable(eventTypes.get(key));
     }
 
-    public EventFilterBuilder filterBuilder() {
-        return new EventFilterBuilder(coins);
+    public Set<String> getEventTypeNames() {
+        return eventTypes.keySet();
+    }
+
+    public FilterContractBuilder filterBuilder() {
+        return new FilterContractBuilder(coins);
     }
 }
