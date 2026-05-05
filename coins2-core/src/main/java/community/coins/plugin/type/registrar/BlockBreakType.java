@@ -18,15 +18,15 @@ import org.bukkit.inventory.ItemStack;
  */
 public final class BlockBreakType extends EventType {
     public BlockBreakType(CoinsCore coins, EventTypeService service) {
-        var filter = service.filterBuilder()
+        super(coins, service, "block_break", filter -> filter
             .hasInitiatorPlayer()
             .hasInitiatorEntity()
             .hasTargetType()
             .hasTargetMinXpDrop()
             .hasTargetAllowSameBlock()
             .hasLocationWorld()
-            .hasLocationCooldown();
-        super(coins, service, "block_break", filter.build());
+            .hasLocationCooldown()
+        );
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#block_break

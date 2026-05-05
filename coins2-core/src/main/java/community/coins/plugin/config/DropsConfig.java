@@ -12,6 +12,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -22,9 +25,18 @@ public final class DropsConfig implements FileConfig<DefinedDrop> {
     private final CoinsCore coins;
     private final ConfigService service;
 
+    private static final ScheduledExecutorService SCHEDULED_THREAD =
+        Executors.newSingleThreadScheduledExecutor();
+
     public DropsConfig(CoinsCore coins, ConfigService service) {
         this.coins = coins;
         this.service = service;
+
+        // clean up unused cache
+        // todo this has not been tested
+        SCHEDULED_THREAD.scheduleAtFixedRate(() -> {
+            getDefinedItems().forEach(DefinedDrop::cleanUpLocationCache);
+        }, 10, 10, TimeUnit.MINUTES);
     }
 
     @Override
@@ -90,10 +102,8 @@ public final class DropsConfig implements FileConfig<DefinedDrop> {
 
             // get a filter config from the event type's filter contract
             ConfigurationSection filtersSection = drop.getConfigurationSection("filters"); // can be null!
-            ConfigurationSection defaultFilters = config.getConfigurationSection("default.filters");
-            EventFilterConfig filterConfig = event.getFilterContract().getFilterConfig(
-                filtersSection, defaultFilters, definedEvent.toLowerCase()
-            );
+            ConfigurationSection defaultFilters = config.getConfigurationSection("default.filters"); // can be null!
+            EventFilterConfig filterConfig = event.getFilterContract().createFilterConfig(filtersSection, defaultFilters);
 
             // create a DefinedCoinDrop from the "coins" section
             ConfigurationSection coinsSection = drop.getConfigurationSection("coins");

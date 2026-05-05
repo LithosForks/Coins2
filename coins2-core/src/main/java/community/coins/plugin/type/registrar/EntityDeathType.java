@@ -3,7 +3,6 @@ package community.coins.plugin.type.registrar;
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.type.EventTypeService;
 import community.coins.plugin.util.EntityUtil;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -16,7 +15,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
  */
 public final class EntityDeathType extends EventType {
     public EntityDeathType(CoinsCore coins, EventTypeService service) {
-        var filter = service.filterBuilder()
+        super(coins, service, "entity_death", filter -> filter
             .hasInitiatorPlayer()
             .hasInitiatorEntity()
             .hasInitiatorAny()
@@ -25,8 +24,8 @@ public final class EntityDeathType extends EventType {
             .hasTargetPreventAlts()
             .hasTargetMinPlayerDamage()
             .hasLocationWorld()
-            .hasLocationCooldown();
-        super(coins, service, "entity_death", filter.build());
+            .hasLocationCooldown()
+        );
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#entity_death

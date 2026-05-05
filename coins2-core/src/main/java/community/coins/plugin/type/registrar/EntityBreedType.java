@@ -12,12 +12,12 @@ import org.bukkit.event.entity.EntityBreedEvent;
  */
 public final class EntityBreedType extends EventType {
     public EntityBreedType(CoinsCore coins, EventTypeService service) {
-        var filter = service.filterBuilder()
+        super(coins, service, "entity_breed", filter -> filter
             .hasInitiatorPlayer()
             .hasTargetEntity()
             .hasLocationWorld()
-            .hasLocationCooldown();
-        super(coins, service, "entity_breed", filter.build());
+            .hasLocationCooldown()
+        );
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#entity_breed

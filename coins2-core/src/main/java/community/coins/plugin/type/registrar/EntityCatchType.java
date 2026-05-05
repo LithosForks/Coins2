@@ -12,13 +12,13 @@ import org.bukkit.event.player.PlayerFishEvent;
  */
 public final class EntityCatchType extends EventType {
     public EntityCatchType(CoinsCore coins, EventTypeService service) {
-        var filter = service.filterBuilder()
+        super(coins, service, "entity_catch", filter -> filter
             .hasInitiatorPlayer()
             .hasTargetEntity()
             .hasTargetMinXpDrop()
             .hasLocationWorld()
-            .hasLocationCooldown();
-        super(coins, service, "entity_catch", filter.build());
+            .hasLocationCooldown()
+        );
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#entity_catch

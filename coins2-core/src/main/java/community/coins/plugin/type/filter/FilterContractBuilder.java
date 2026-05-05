@@ -13,12 +13,15 @@ import java.util.Set;
  */
 public final class FilterContractBuilder {
     private final CoinsCore coins;
-    public FilterContractBuilder(CoinsCore coins) {
+    private final EventType eventType;
+
+    public FilterContractBuilder(CoinsCore coins, EventType eventType) {
         this.coins = coins;
+        this.eventType = eventType;
     }
 
     public FilterContract build() {
-        return new FilterContract(coins, allowedPaths);
+        return new FilterContract(coins, eventType, allowedPaths);
     }
 
     // allowed paths in the config

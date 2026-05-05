@@ -12,10 +12,10 @@ import org.bukkit.event.world.LootGenerateEvent;
  */
 public final class LootChestOpenType extends EventType {
     public LootChestOpenType(CoinsCore coins, EventTypeService service) {
-        var filter = service.filterBuilder()
+        super(coins, service, "loot_chest_open", filter -> filter
             .hasInitiatorPlayer()
-            .hasLocationWorld();
-        super(coins, service, "loot_chest_open", filter.build());
+            .hasLocationWorld()
+        );
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#loot_chest_open

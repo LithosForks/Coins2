@@ -20,12 +20,12 @@ import org.bukkit.inventory.meta.Repairable;
  */
 public final class ItemRepairType extends EventType {
     public ItemRepairType(CoinsCore coins, EventTypeService service) {
-        var filter = service.filterBuilder()
+        super(coins, service, "item_repair", filter -> filter
             .hasInitiatorPlayer()
             .hasTargetType()
             .hasLocationWorld()
-            .hasLocationCooldown();
-        super(coins, service, "item_repair", filter.build());
+            .hasLocationCooldown()
+        );
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#item_repair

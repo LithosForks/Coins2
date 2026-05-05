@@ -14,10 +14,10 @@ import org.bukkit.event.player.PlayerAdvancementDoneEvent;
  */
 public final class RecipeUnlockType extends EventType {
     public RecipeUnlockType(CoinsCore coins, EventTypeService service) {
-        var filter = service.filterBuilder()
+        super(coins, service, "recipe_unlock", filter -> filter
             .hasInitiatorPlayer()
-            .hasLocationWorld();
-        super(coins, service, "recipe_unlock", filter.build());
+            .hasLocationWorld()
+        );
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#recipe_unlock

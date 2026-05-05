@@ -14,11 +14,11 @@ import org.bukkit.event.EventHandler;
  */
 public final class AdvancementDoneType extends EventType {
     public AdvancementDoneType(CoinsCore coins, EventTypeService service) {
-        var filter = service.filterBuilder()
+        super(coins, service, "advancement_done", filter -> filter
             .hasInitiatorPlayer()
             .hasTargetType()
-            .hasLocationWorld();
-        super(coins, service, "advancement_done", filter.build());
+            .hasLocationWorld()
+        );
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#advancement_done

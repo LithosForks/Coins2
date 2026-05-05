@@ -2,6 +2,8 @@ package community.coins.plugin.type.filter;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.data.TransformType;
+import community.coins.plugin.drops.DefinedDrop;
+import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -231,7 +233,7 @@ public final class EventFilterForm {
         return true;
     }
 
-    private boolean isLocationAllowed(@NotNull EventFilterConfig config) {
+    private boolean isLocationAllowed(@NotNull EventFilterConfig config, DefinedDrop drop) {
         // handles: "location.disabled-worlds"
         Set<String> worlds = config.getLocationDisabledWorlds();
         if (worlds != null && locationWorld != null && worlds.contains(locationWorld.getName())) {
@@ -240,19 +242,25 @@ public final class EventFilterForm {
         }
 
         // handles: "location.cooldown.cap-amount", "location.cooldown.duration"
-        Integer cooldownCapAmount = config.getLocationCooldownCapAmount();
-        String cooldownDuration = config.getLocationCooldownDuration();
-        if (cooldownCapAmount != null && cooldownDuration != null) {
-            // todo implement
-            // this.locationCooldown
+        if (locationCooldown != null) {
+            Integer cooldownCapAmount = config.getLocationCooldownCapAmount();
+            Integer cooldownDuration = config.getLocationCooldownDurationMillis();
+            if (cooldownCapAmount != null && cooldownDuration != null) {
+                if (!drop.isLocationAvailableAndSet(locationCooldown, cooldownCapAmount, cooldownDuration)) {
+                    coins.debug("Disallowed '%s' due to location cooldown cap reached".formatted(eventIdentifier));
+                    return false;
+                }
+            }
         }
+
         return true;
     }
 
-    public boolean isAllowed(@NotNull EventFilterConfig config) {
+    public boolean isAllowed(DefinedDrop drop) {
+        EventFilterConfig config = drop.getEventFilterConfig();
         return isInitiatorAllowed(config)
             && isTargetAllowed(config)
-            && isLocationAllowed(config);
+            && isLocationAllowed(config, drop);
     }
 
     private boolean isInCategory(Entity entity, @NotNull Set<String> selector) {

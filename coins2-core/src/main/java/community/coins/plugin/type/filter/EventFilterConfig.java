@@ -125,13 +125,13 @@ public final class EventFilterConfig {
         return locationCooldownCapAmount;
     }
 
-    private String locationCooldownDuration;
+    private Integer locationCooldownDurationMillis;
 
-    public void setLocationCooldownDuration(String locationCooldownDuration) {
-        this.locationCooldownDuration = locationCooldownDuration;
+    public void setLocationCooldownDurationMillis(Integer locationCooldownDurationMillis) {
+        this.locationCooldownDurationMillis = locationCooldownDurationMillis;
     }
 
-    public String getLocationCooldownDuration() {
-        return locationCooldownDuration;
+    public Integer getLocationCooldownDurationMillis() {
+        return locationCooldownDurationMillis;
     }
 }

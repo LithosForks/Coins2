@@ -4,6 +4,9 @@ import community.coins.plugin.CoinsCore;
 import community.coins.plugin.config.DepositType;
 import community.coins.plugin.type.filter.EventFilterConfig;
 import community.coins.plugin.type.filter.EventFilterForm;
+import community.coins.plugin.util.BlockCache;
+import community.coins.plugin.util.BlockPosition;
+import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -11,8 +14,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.SplittableRandom;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Eli
@@ -75,5 +80,29 @@ public final class DefinedDrop {
         items.add(coin);
 
         return Optional.of(new CoinDropAction(this, form, items));
+    }
+
+    // location cooldown caching is done per different drop
+
+    public void cleanUpLocationCache() {
+        locationLimitCache.entrySet().removeIf(entry -> !entry.getValue().isWithinConfiguredTime());
+    }
+
+    private final Map<BlockPosition, BlockCache> locationLimitCache = new ConcurrentHashMap<>();
+
+    public boolean isLocationAvailableAndSet(Location location, int capAmount, int durationMillis) {
+        if (capAmount < 1) {
+            return true;
+        }
+
+        BlockPosition position = new BlockPosition(location);
+        BlockCache cache = locationLimitCache.computeIfAbsent(position, _ -> new BlockCache(durationMillis));
+
+        if (cache.isWithinConfiguredTime()) {
+            return cache.getAndIncrement() < capAmount;
+        }
+
+        cache.getAndIncrement();
+        return true;
     }
 }

@@ -13,12 +13,12 @@ import org.bukkit.event.entity.EntityTameEvent;
  */
 public final class EntityTameType extends EventType {
     public EntityTameType(CoinsCore coins, EventTypeService service) {
-        var filter = service.filterBuilder()
+        super(coins, service, "entity_tame", filter -> filter
             .hasInitiatorPlayer()
             .hasTargetEntity()
             .hasLocationWorld()
-            .hasLocationCooldown();
-        super(coins, service, "entity_tame", filter.build());
+            .hasLocationCooldown()
+        );
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#entity_tame

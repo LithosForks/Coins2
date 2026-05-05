@@ -16,12 +16,12 @@ import java.util.HashSet;
  */
 public final class ItemEnchantType extends EventType {
     public ItemEnchantType(CoinsCore coins, EventTypeService service) {
-        var filter = service.filterBuilder()
+        super(coins, service, "item_enchant", filter -> filter
             .hasInitiatorPlayer()
             .hasTargetType()
             .hasLocationWorld()
-            .hasLocationCooldown();
-        super(coins, service, "item_enchant", filter.build());
+            .hasLocationCooldown()
+        );
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#item_enchant

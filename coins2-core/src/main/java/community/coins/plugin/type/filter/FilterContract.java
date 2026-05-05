@@ -1,13 +1,15 @@
 package community.coins.plugin.type.filter;
 
 import community.coins.plugin.CoinsCore;
+import community.coins.plugin.type.registrar.EventType;
+import community.coins.plugin.util.Util;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Set;
 
 /**
@@ -17,15 +19,17 @@ import java.util.Set;
  */
 public final class FilterContract {
     private final CoinsCore coins;
+    private final EventType eventType;
     private final Set<String> configPaths;
 
-    public FilterContract(CoinsCore coins, Set<String> configPaths) {
+    public FilterContract(CoinsCore coins, EventType eventType, Set<String> configPaths) {
         this.coins = coins;
+        this.eventType = eventType;
         this.configPaths = configPaths;
     }
 
-    // get a FilterConfig based on the contract (of the event)
-    public @NotNull EventFilterConfig getFilterConfig(@Nullable ConfigurationSection conf, ConfigurationSection def, String eventType) {
+    /// get a FilterConfig based on the contract (of the event)
+    public @NotNull EventFilterConfig createFilterConfig(ConfigurationSection conf, ConfigurationSection def) {
         if (conf == null) {
             conf = def;
         }
@@ -42,7 +46,7 @@ public final class FilterContract {
             if (values.isEmpty()) {
                 values.addAll(def.getStringList("initiator.type"));
             }
-            filter.setInitiatorType(toNamespacedKeys(values, eventType));
+            filter.setInitiatorType(toNamespacedKeys(values, eventType.getIdentifier()));
         }
         if (contains("initiator.any", conf, def)) {
             filter.setInitiatorAny(conf.getBoolean("initiator.any", def.getBoolean("initiator.any")));
@@ -52,7 +56,7 @@ public final class FilterContract {
             if (values.isEmpty()) {
                 values.addAll(def.getStringList("target.type"));
             }
-            filter.setTargetType(toNamespacedKeys(values, eventType));
+            filter.setTargetType(toNamespacedKeys(values, eventType.getIdentifier()));
         }
         if (contains("target.category", conf, def)) {
             List<String> values = conf.getStringList("target.category");
@@ -80,9 +84,16 @@ public final class FilterContract {
             }
             filter.setLocationDisabledWorlds(new HashSet<>(values));
         }
-        if (contains("location.cooldown.cap-amount", conf, def) && contains(conf.getString("location.cooldown.duration"), conf, def)) {
-            filter.setLocationCooldownCapAmount(conf.getInt("location.cooldown.cap-amount"));
-            filter.setLocationCooldownDuration(conf.getString("location.cooldown.duration"));
+        if (contains("location.cooldown.cap-amount", conf, def) && contains("location.cooldown.duration", conf, def)) {
+            OptionalInt durationMillis = Util.toDurationMillis(conf.getString("location.cooldown.duration", def.getString("location.cooldown.duration")));
+            if (durationMillis.isPresent()) {
+                filter.setLocationCooldownCapAmount(conf.getInt("location.cooldown.cap-amount", def.getInt("location.cooldown.cap-amount")));
+                filter.setLocationCooldownDurationMillis(durationMillis.getAsInt());
+            }
+            else {
+                coins.getConfigService().addWarning("Found an invalid cooldown duration.");
+                // todo improve warning
+            }
         }
 
         return filter;
@@ -104,7 +115,8 @@ public final class FilterContract {
         Set<NamespacedKey> keys = new HashSet<>();
         for (String value : values) {
             var name = NamespacedKey.fromString(value);
-            if (name == null) { // todo improve warning adding eventIdentifier
+            if (name == null) {
+                // todo improve warning adding eventIdentifier
                 coins.getConfigService().addWarning("Invalid type found for event type '%s'.".formatted(eventType));
                 continue;
             }

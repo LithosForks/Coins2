@@ -18,13 +18,13 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
  */
 public final class CropHarvestType extends EventType {
     public CropHarvestType(CoinsCore coins, EventTypeService service) {
-        var filter = service.filterBuilder()
+        super(coins, service, "crop_harvest", filter -> filter
             .hasInitiatorPlayer()
             .hasInitiatorEntity()
             .hasTargetType()
             .hasLocationWorld()
-            .hasLocationCooldown();
-        super(coins, service, "crop_harvest", filter.build());
+            .hasLocationCooldown()
+        );
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#crop_harvest

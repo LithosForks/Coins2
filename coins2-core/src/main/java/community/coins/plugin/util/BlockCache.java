@@ -8,16 +8,22 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since April 19, 2026
  */
 public final class BlockCache {
+    private final int durationMillis;
+    public BlockCache(int durationMillis) {
+        this.durationMillis = durationMillis;
+    }
+
     // both 0 because nothing has happened yet when the object is created
     private final AtomicInteger amount = new AtomicInteger(0);
     private final AtomicLong lastTime = new AtomicLong(0);
+
 
     public int getAndIncrement() {
         lastTime.set(System.currentTimeMillis());
         return amount.getAndIncrement();
     }
 
-    public boolean isWithinConfiguredTime(int cooldownMillis) {
-        return lastTime.get() > System.currentTimeMillis() - cooldownMillis;
+    public boolean isWithinConfiguredTime() {
+        return lastTime.get() > System.currentTimeMillis() - durationMillis;
     }
 }

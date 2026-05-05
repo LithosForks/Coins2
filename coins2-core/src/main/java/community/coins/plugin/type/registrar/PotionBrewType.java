@@ -11,10 +11,10 @@ import org.bukkit.event.inventory.BrewEvent;
  */
 public final class PotionBrewType extends EventType {
     public PotionBrewType(CoinsCore coins, EventTypeService service) {
-        var filter = service.filterBuilder()
+        super(coins, service, "potion_brew", filter -> filter
             .hasLocationWorld()
-            .hasLocationCooldown();
-        super(coins, service, "potion_brew", filter.build());
+            .hasLocationCooldown()
+        );
     }
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#potion_brew

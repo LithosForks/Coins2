@@ -1,7 +1,6 @@
 package community.coins.plugin.type;
 
 import community.coins.plugin.CoinsCore;
-import community.coins.plugin.type.registrar.EventType;
 import community.coins.plugin.type.registrar.AdvancementDoneType;
 import community.coins.plugin.type.registrar.BlockBreakType;
 import community.coins.plugin.type.registrar.CropHarvestType;
@@ -9,15 +8,13 @@ import community.coins.plugin.type.registrar.EntityBreedType;
 import community.coins.plugin.type.registrar.EntityCatchType;
 import community.coins.plugin.type.registrar.EntityDeathType;
 import community.coins.plugin.type.registrar.EntityTameType;
+import community.coins.plugin.type.registrar.EventType;
 import community.coins.plugin.type.registrar.ItemEnchantType;
 import community.coins.plugin.type.registrar.ItemRepairType;
 import community.coins.plugin.type.registrar.LootChestOpenType;
 import community.coins.plugin.type.registrar.PotionBrewType;
 import community.coins.plugin.type.registrar.RecipeUnlockType;
-import community.coins.plugin.type.filter.FilterContractBuilder;
 
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -64,9 +61,5 @@ public final class EventTypeService {
 
     public Set<String> getEventTypeNames() {
         return eventTypes.keySet();
-    }
-
-    public FilterContractBuilder filterBuilder() {
-        return new FilterContractBuilder(coins);
     }
 }

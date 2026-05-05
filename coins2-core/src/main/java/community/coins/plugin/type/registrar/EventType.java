@@ -7,7 +7,7 @@ import community.coins.plugin.drops.DefinedDrop;
 import community.coins.plugin.type.EventTypeService;
 import community.coins.plugin.type.filter.EventFilterForm;
 import community.coins.plugin.type.filter.FilterContract;
-import org.bukkit.Bukkit;
+import community.coins.plugin.type.filter.FilterContractBuilder;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * todo could also be expanded by other plugins, so a registrar of some sorts
@@ -42,10 +43,10 @@ public abstract class EventType implements Listener {
      *                 it checks this filter contract when parsing a defined drop
      */
     @NullMarked
-    public EventType(CoinsCore coins, EventTypeService service, String identifier, FilterContract contract) {
+    public EventType(CoinsCore coins, EventTypeService service, String identifier, Function<FilterContractBuilder, FilterContractBuilder> contract) {
         this.coins = coins;
         this.identifier = identifier;
-        this.filterContract = contract;
+        this.filterContract = contract.apply(new FilterContractBuilder(coins, this)).build();
         service.registerEventType(this);
     }
 
@@ -68,7 +69,7 @@ public abstract class EventType implements Listener {
         // filter it per different registered DefinedDrops on this EventType
         List<CoinDropAction> coinActions = new LinkedList<>();
         for (DefinedDrop drop : getRegisteredDrops()) {
-            if (!filter.isAllowed(drop.getEventFilterConfig())) {
+            if (!filter.isAllowed(drop)) {
                 continue; // remove those that do not meet the filter
             }
 
