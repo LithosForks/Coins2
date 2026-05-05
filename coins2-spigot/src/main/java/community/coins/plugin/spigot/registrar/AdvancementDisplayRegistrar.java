@@ -1,4 +1,4 @@
-package community.coins.plugin.paper.type;
+package community.coins.plugin.spigot.registrar;
 
 import community.coins.plugin.api.BasicPlugin;
 import community.coins.plugin.type.event.AdvancementDisplayEvent;
@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 
 /**
+ * todo test on spigot
  * @author Eli
  * @since May 04, 2026
  */

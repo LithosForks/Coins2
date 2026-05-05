@@ -9,6 +9,7 @@ import community.coins.plugin.handler.CoinBehaviourHandler;
 import community.coins.plugin.handler.EntityDataHandler;
 import community.coins.plugin.item.CoinService;
 import community.coins.plugin.metrics.Stats;
+import community.coins.plugin.registrar.PlayerPickupCoinRegistrar;
 import community.coins.plugin.type.EventTypeService;
 import community.coins.plugin.util.VersionCheck;
 
@@ -24,6 +25,9 @@ public abstract class CoinsCore extends BasicPlugin {
     @Override
     public void onEnable() {
         beforeCoreLoaded();
+
+        // registering registrars of events
+        new PlayerPickupCoinRegistrar(this);
 
         // register all possible event types
         this.eventTypeService = new EventTypeService(this);

@@ -9,7 +9,8 @@ import community.coins.plugin.paper.commands.TestLogic;
 import community.coins.plugin.paper.implement.ComponentApiPaper;
 import community.coins.plugin.paper.implement.ItemParseApiPaper;
 import community.coins.plugin.paper.implement.PluginAttributesPaper;
-import community.coins.plugin.paper.type.AdvancementDisplayRegistrar;
+import community.coins.plugin.paper.registrar.AdvancementDisplayRegistrar;
+import community.coins.plugin.paper.registrar.PickupItemRegistrar;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.jetbrains.annotations.NotNull;
@@ -31,8 +32,9 @@ public final class CoinsPaper extends CoinsCore {
         this.itemParseApi = new ItemParseApiPaper(this);
         this.pluginAttributes = new PluginAttributesPaper(this);
 
-        // registering events
+        // registering registrars of events
         new AdvancementDisplayRegistrar(this);
+        new PickupItemRegistrar(this);
     }
 
     @Override

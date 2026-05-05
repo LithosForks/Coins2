@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.component.ColorResolver;
+import community.coins.plugin.event.PlayerPickupCoinEvent;
 import community.coins.plugin.item.DefinedCoin;
 import community.coins.plugin.paper.CoinsPaper;
 import io.papermc.paper.command.brigadier.Commands;
@@ -12,8 +13,8 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -36,21 +37,10 @@ public final class TestLogic implements Listener {
         }
     }
 
-    @EventHandler // for testing only
-    void onEntityPickupItemEvent(EntityPickupItemEvent event) {
-        if (!(event.getEntity() instanceof Player player)) {
-            return;
-        }
-
-        var item = event.getItem().getItemStack();
-        if (!coins.getCoinService().getCoinMeta().isCoin(item)) {
-            return;
-        }
-
-        double value = coins.getCoinService().getCoinMeta().getCoinValue(item).orElse(0D);
-        player.sendActionBar(Component.text(value, ColorResolver.MONEY));
-        event.setCancelled(true);
-        event.getItem().remove();
+    @EventHandler(priority = EventPriority.HIGHEST) // for testing only
+    void onEntityPickupItemEvent(PlayerPickupCoinEvent event) {
+        double value = coins.getCoinService().getCoinMeta().getCoinValue(event.getItem().getItemStack()).orElse(0D);
+        event.getPlayer().sendActionBar(Component.text("%.2f¢".formatted(value), ColorResolver.MONEY));
     }
 
     public TestLogic(CoinsPaper coins) {
