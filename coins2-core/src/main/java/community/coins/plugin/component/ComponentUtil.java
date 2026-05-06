@@ -24,4 +24,11 @@ public final class ComponentUtil {
     public static @NotNull String toStripped(@NotNull Component component) {
         return PLAIN_TEXT_SERIALIZER.serialize(component);
     }
+
+    /// replaces {amount} to appropriate value
+    public static Component replaceAmount(Component component, String formattedAmount) {
+        return component.replaceText(builder ->
+            builder.matchLiteral("{amount}").replacement(formattedAmount)
+        );
+    }
 }

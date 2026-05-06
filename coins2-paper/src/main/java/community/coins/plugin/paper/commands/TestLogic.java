@@ -3,17 +3,13 @@ package community.coins.plugin.paper.commands;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import community.coins.plugin.CoinsCore;
-import community.coins.plugin.component.ColorResolver;
-import community.coins.plugin.event.PlayerPickupCoinEvent;
 import community.coins.plugin.item.DefinedCoin;
 import community.coins.plugin.paper.CoinsPaper;
 import io.papermc.paper.command.brigadier.Commands;
-import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.persistence.PersistentDataType;
@@ -35,12 +31,6 @@ public final class TestLogic implements Listener {
         if (event.getEntity() instanceof Bat) {
             event.setCancelled(true);
         }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST) // for testing only
-    void onEntityPickupItemEvent(PlayerPickupCoinEvent event) {
-        double value = coins.getCoinService().getCoinMeta().getCoinValue(event.getItem().getItemStack()).orElse(0D);
-        event.getPlayer().sendActionBar(Component.text("%.2f¢".formatted(value), ColorResolver.MONEY));
     }
 
     public TestLogic(CoinsPaper coins) {

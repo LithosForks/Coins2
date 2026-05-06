@@ -1,9 +1,11 @@
 package community.coins.plugin.paper.implement;
 
 import community.coins.plugin.api.ComponentApi;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.Team;
@@ -36,5 +38,10 @@ public final class ComponentApiPaper implements ComponentApi {
     @Override
     public void applyDisplayName(Item item) {
         item.customName(item.getItemStack().getItemMeta().displayName());
+    }
+
+    @Override
+    public Audience getAudience(CommandSender sender) {
+        return sender;
     }
 }

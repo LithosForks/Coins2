@@ -14,6 +14,7 @@ import community.coins.plugin.type.registrar.ItemRepairType;
 import community.coins.plugin.type.registrar.LootChestOpenType;
 import community.coins.plugin.type.registrar.PotionBrewType;
 import community.coins.plugin.type.registrar.RecipeUnlockType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Optional;
@@ -48,15 +49,15 @@ public final class EventTypeService {
 
     public void registerEventType(EventType type) {
         coins.parseEventHandlers(type);
-        eventTypes.put(type.getIdentifier(), type);
+        eventTypes.put(type.getIdentifier(), type); // identifier already lowercase
     }
 
     public void clearRegisteredDrops() {
         eventTypes.forEach((_, type) -> type.clearRegisteredDrops());
     }
 
-    public Optional<EventType> getEventType(String key) {
-        return Optional.ofNullable(eventTypes.get(key));
+    public Optional<EventType> getEventType(@NotNull String identifier) {
+        return Optional.ofNullable(eventTypes.get(identifier.toLowerCase()));
     }
 
     public Set<String> getEventTypeNames() {

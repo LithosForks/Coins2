@@ -5,6 +5,8 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.regex.Matcher;
@@ -64,5 +66,20 @@ public final class Util {
         }
 
         return OptionalInt.of(millis);
+    }
+
+    public static <T extends Enum<T>> @Nullable T getEnum(Class<T> type, String value) {
+        if (value == null) {
+            return null;
+        }
+
+        try { return Enum.valueOf(type, value.toUpperCase().replace(" ", "_")); }
+        catch (IllegalArgumentException | NullPointerException exception) {
+            return null;
+        }
+    }
+
+    public static double toRoundedMoneyDecimals(double value, int decimals) {
+        return BigDecimal.valueOf(value).setScale(decimals, RoundingMode.HALF_UP).doubleValue();
     }
 }

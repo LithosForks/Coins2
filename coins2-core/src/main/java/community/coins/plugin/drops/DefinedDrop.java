@@ -1,17 +1,15 @@
 package community.coins.plugin.drops;
 
 import community.coins.plugin.CoinsCore;
-import community.coins.plugin.config.DepositType;
 import community.coins.plugin.type.filter.EventFilterConfig;
 import community.coins.plugin.type.filter.EventFilterForm;
 import community.coins.plugin.util.BlockCache;
 import community.coins.plugin.util.BlockPosition;
+import community.coins.plugin.util.Util;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +27,7 @@ public final class DefinedDrop {
     private final DefinedCoinDrop definedCoinDrop;
 
     public DefinedDrop(String identifier, EventFilterConfig filterConfig, DefinedCoinDrop coinDrop) {
-        this.identifier = identifier;
+        this.identifier = identifier.toLowerCase();
         this.eventFilterConfig = filterConfig;
         this.definedCoinDrop = coinDrop;
     }
@@ -49,13 +47,6 @@ public final class DefinedDrop {
         return DepositType.DROP;
     }
 
-    private static final int DECIMAL_POINTS = 2;
-
-    // todo decimal-points in config
-    public static double toRoundedMoneyDecimals(double value) {
-        return BigDecimal.valueOf(value).setScale(DECIMAL_POINTS, RoundingMode.HALF_UP).doubleValue();
-    }
-
     public Optional<CoinDropAction> generateCoinAction(CoinsCore coins, EventFilterForm form) {
         Optional<AmountedCoin> amountedCoin = definedCoinDrop.getRandomPick();
         if (amountedCoin.isEmpty()) {
@@ -64,7 +55,6 @@ public final class DefinedDrop {
 
         double min = amountedCoin.get().getMinValue();
         double max = amountedCoin.get().getMaxValue();
-        double value = toRoundedMoneyDecimals(min == max? min : RANDOM.nextDouble(min, max));
 
         // todo drop-each-coin can be programmed here (currently always only 1 in list)
 
@@ -73,6 +63,9 @@ public final class DefinedDrop {
         // create coin
         ItemStack coin = amountedCoin.get().getCoin().getItemStackClone();
         ItemMeta meta = coin.getItemMeta();
+        // todo fix; set to appropriate decimals
+        double value = Util.toRoundedMoneyDecimals(min == max? min : RANDOM.nextDouble(min, max), 2);
+
         coins.getCoinService().getCoinMeta().setCoinValue(meta, value);
         coin.setItemMeta(meta);
 

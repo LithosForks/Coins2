@@ -1,7 +1,7 @@
 package community.coins.plugin.drops;
 
-import community.coins.plugin.CoinsCore;
 import community.coins.plugin.config.ConfigService;
+import community.coins.plugin.config.ConfigWarns;
 import community.coins.plugin.item.DefinedCoin;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
@@ -21,12 +21,12 @@ public final class DefinedCoinDrop {
     private final NavigableMap<Double, AmountedCoin> coinChances = new TreeMap<>();
     private static final SplittableRandom RANDOM = new SplittableRandom();
 
-    public DefinedCoinDrop(CoinsCore coins, ConfigService service, @NotNull ConfigurationSection coinsSection) {
+    public DefinedCoinDrop(ConfigService service, ConfigWarns.Named warns, @NotNull ConfigurationSection coinsSection) {
         double total = 0.;
         for (String coinName : coinsSection.getKeys(false)) {
             Optional<DefinedCoin> definedCoin = service.getCoinsConfig().getDefinedItem(coinName);
             if (definedCoin.isEmpty()) {
-                coins.getConfigService().addWarning("No coin found with name " + coinName); // todo add drop name
+                warns.warn("No coin found with name " + coinName); // todo add drop name
                 continue;
             }
 

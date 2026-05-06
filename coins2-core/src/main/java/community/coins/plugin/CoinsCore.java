@@ -2,10 +2,14 @@ package community.coins.plugin;
 
 import community.coins.plugin.api.BasicPlugin;
 import community.coins.plugin.config.ConfigService;
+import community.coins.plugin.config.ConfigWarns;
 import community.coins.plugin.config.ConfigYml;
 import community.coins.plugin.data.PersistentData;
+import community.coins.plugin.economy.EconomyService;
+import community.coins.plugin.economy.PickupHandler;
 import community.coins.plugin.folialib.FoliaScheduler;
-import community.coins.plugin.handler.CoinBehaviourHandler;
+import community.coins.plugin.handler.CancellationHandler;
+import community.coins.plugin.handler.CoinBehaviorHandler;
 import community.coins.plugin.handler.EntityDataHandler;
 import community.coins.plugin.item.CoinService;
 import community.coins.plugin.metrics.Stats;
@@ -22,31 +26,36 @@ public abstract class CoinsCore extends BasicPlugin {
     public void onEnable() {
         beforeCoreLoaded();
 
+        // scheduler setup with folia and Bukkit support
+        this.foliaScheduler = new FoliaScheduler(this);
+
         // registering registrars of events
         new PlayerPickupCoinRegistrar(this);
 
         // register all possible event types
         this.eventTypeService = new EventTypeService(this);
+        this.economyService = new EconomyService(this);
 
         // parse all configs
+        this.configWarns = new ConfigWarns(this);
         this.coinService = new CoinService(this);
         this.configService = new ConfigService(this);
 
         // basic utilities
         this.persistentData = new PersistentData(this);
 
-        // scheduler setup with folia and Bukkit support
-        this.foliaScheduler = new FoliaScheduler(this);
+        // some events
+        new PickupHandler(this);
 
         // get latest version
         this.versionCheck = new VersionCheck(this);
         VIRTUAL_EXECUTOR.submit(() -> versionCheck.findLatestVersion(ConfigYml.NOTIFY_ON_UPDATE));
 
-        getLogger().info("Loading CoinsCore");
         new Stats(this);
 
         // some event handling
-        new CoinBehaviourHandler(this);
+        new CancellationHandler(this);
+        new CoinBehaviorHandler(this);
         new EntityDataHandler(this);
 
         // things to load after core enabled
@@ -63,6 +72,16 @@ public abstract class CoinsCore extends BasicPlugin {
 
     public void debug(String message) {
         getLogger().warning("(Debug @ %d) %s".formatted(System.currentTimeMillis(), message));
+    }
+
+    private ConfigWarns configWarns;
+    public ConfigWarns getConfigWarns() {
+        return configWarns;
+    }
+
+    private EconomyService economyService;
+    public EconomyService getEconomyService() {
+        return economyService;
     }
 
     private EventTypeService eventTypeService;

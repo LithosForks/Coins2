@@ -6,8 +6,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import community.coins.plugin.api.BasicPlugin;
-import community.coins.plugin.config.ConfigService;
+import community.coins.plugin.CoinsCore;
+import community.coins.plugin.config.ConfigWarns;
 import community.coins.plugin.config.ConfigYml;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,12 +34,12 @@ import java.util.regex.Pattern;
  * @since April 27, 2026
  */
 public final class LanguageParser {
-    private final BasicPlugin plugin;
-    private final ConfigService service;
+    private final CoinsCore coins;
+    private final ConfigWarns.Named configWarns;
 
-    public LanguageParser(BasicPlugin plugin, ConfigService service) {
-        this.plugin = plugin;
-        this.service = service;
+    public LanguageParser(CoinsCore coins) {
+        this.coins = coins;
+        this.configWarns = coins.getConfigWarns().create("Locale");
         createDefaultLocale();
     }
 
@@ -53,7 +53,7 @@ public final class LanguageParser {
         if (!LOCALE_PATTERN.matcher(ConfigYml.LOCALE).matches()) {
             String corrected = toValidLocale(ConfigYml.LOCALE);
             if (corrected.isEmpty()) {
-                service.addWarning("""
+                configWarns.warn("""
                     Found an incorrect locale in the config. Now using the default locale '%s'. \
                     Please use a locale from the 'locale' folder in Coins, or create your own in the format 'xx-YY'."""
                     .formatted(DEFAULT_LOCALE)
@@ -61,7 +61,7 @@ public final class LanguageParser {
                 ConfigYml.LOCALE = DEFAULT_LOCALE;
             }
             else {
-                service.addWarning("""
+                configWarns.warn("""
                     Found an invalid locale '%s' in the config at `locale`. Change this to '%s'."""
                     .formatted(ConfigYml.LOCALE, corrected)
                 );
@@ -73,7 +73,7 @@ public final class LanguageParser {
 
         try { parseLanguage(); }
         catch (Throwable throwable) {
-            plugin.log(Level.WARNING, "Could not load language file for '%s'.".formatted(ConfigYml.LOCALE));
+            configWarns.warn("Could not load language file for '%s'.".formatted(ConfigYml.LOCALE));
         }
     }
 
@@ -82,13 +82,13 @@ public final class LanguageParser {
         try (var client = HttpClient.newHttpClient()) {
             HttpRequest request = HttpRequest.newBuilder()
                 .timeout(Duration.ofSeconds(10))
-                .uri(URI.create("https://api.github.com/repos/%s/contents/locale".formatted(plugin.getAttributes().getRepository())))
+                .uri(URI.create("https://api.github.com/repos/%s/contents/locale".formatted(coins.getAttributes().getRepository())))
                 .header("Accept", "application/vnd.github+json").build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             JsonArray array = JsonParser.parseString(response.body()).getAsJsonArray();
 
-            Path directory = plugin.getDataFolder().toPath().resolve("locale");
+            Path directory = coins.getDataFolder().toPath().resolve("locale");
             Files.createDirectories(directory); // always create directory
 
             // every file from locale in GitHub
@@ -127,7 +127,7 @@ public final class LanguageParser {
         }
 
         if (!downloadedLocales.isEmpty()) {
-            plugin.log(Level.INFO, """
+            coins.log(Level.INFO, """
                 Language files have been added to the 'locale' folder, and can be used in the config: '%s'"""
                 .formatted(String.join("', '", downloadedLocales))
             );
@@ -158,7 +158,7 @@ public final class LanguageParser {
             createLocale(DEFAULT_LOCALE, false);
         }
         catch (IOException exception) {
-            plugin.log(Level.WARNING, "Unable to create the default language file for '%s'.".formatted(DEFAULT_LOCALE));
+            configWarns.warn("Unable to create the default language file for '%s'.".formatted(DEFAULT_LOCALE));
         }
     }
 
@@ -166,7 +166,7 @@ public final class LanguageParser {
 
     private void createLocale(String locale, boolean alsoLoadToCache) throws IOException {
         // load or create language file
-        Path localeFile = plugin.getDataFolder().toPath().resolve("locale").resolve(locale + ".json");
+        Path localeFile = coins.getDataFolder().toPath().resolve("locale").resolve(locale + ".json");
         Files.createDirectories(localeFile.getParent()); // always create locale directory
 
         JsonObject json;
@@ -177,7 +177,7 @@ public final class LanguageParser {
             }
         }
         else {
-            plugin.log(Level.INFO, """
+            coins.log(Level.INFO, """
                 Language file doesn't exist for 'locale/%s.json'. Creating one with default values.""".formatted(locale)
             );
             json = new JsonObject();
@@ -222,6 +222,6 @@ public final class LanguageParser {
 
     private void parseLanguage() throws IOException {
         createLocale(ConfigYml.LOCALE, true);
-        plugin.log(Level.INFO, "Language from 'locale/%s.json' has been loaded.".formatted(ConfigYml.LOCALE));
+        coins.log(Level.INFO, "Language from 'locale/%s.json' has been loaded.".formatted(ConfigYml.LOCALE));
     }
 }

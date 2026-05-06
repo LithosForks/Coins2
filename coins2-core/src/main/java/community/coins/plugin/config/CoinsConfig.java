@@ -2,6 +2,7 @@ package community.coins.plugin.config;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.component.ComponentUtil;
+import community.coins.plugin.economy.EconomyHook;
 import community.coins.plugin.item.DefinedCoin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -12,60 +13,38 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Level;
 
 /**
  * @author Eli
  * @since April 28, 2026
  */
-public final class CoinsConfig implements FileConfig<DefinedCoin> {
-    private final CoinsCore coins;
-    private final ConfigService service;
-
+public final class CoinsConfig extends FileConfig<DefinedCoin> {
     // todo if we ever decide to add currencies, add it to properties of the coin (not drop)
     // todo add support for allow-modification (immutable but not only coin display name)
     public CoinsConfig(CoinsCore coins, ConfigService service) {
-        this.coins = coins;
-        this.service = service;
-    }
-
-    @Override
-    public String getFileName() {
-        return "coins.yml";
+        super(coins, service, "coins.yml");
     }
 
     private static final UUID HEAD_UUID = UUID.fromString("00000001-0001-0001-7777-000000000001");
-    private final Map<String, DefinedCoin> definedCoins = new HashMap<>();
-
-    @Override
-    public Optional<DefinedCoin> getDefinedItem(@NotNull String key) {
-        return Optional.ofNullable(definedCoins.get(key.toLowerCase()));
-    }
-
-    @Override
-    public Collection<DefinedCoin> getDefinedItems() {
-        return definedCoins.values();
-    }
 
     @Override
     public void parseAndReload() {
-        var config = service.getOrCreateConfig(getFileName());
+        var config = getOrCreateConfig();
 
         Optional<ItemStack> defaultItem = getItemValue(config.getConfigurationSection("default"), null, "defined_coin");
         String defaultSingularName = config.getString("default.name.singular", "Coin");
         String defaultPluralName = config.getString("default.name.plural", "Coins");
         boolean defaultImmutable = config.getBoolean("default.name.immutable", true);
+        String defaultCurrency = config.getString("default.currency", "Vault"); // maybe to 'physical' when available
         boolean defaultEnchanted = config.getBoolean("default.meta.enchanted", false);
         List<String> defaultItemModel = config.getStringList("default.meta.model-strings");
         List<String> defaultLore = config.getStringList("default.meta.lore");
@@ -74,50 +53,55 @@ public final class CoinsConfig implements FileConfig<DefinedCoin> {
         boolean defaultItemMerge = config.getBoolean("default.behavior.item-merge", false);
         boolean defaultHopperPickup = config.getBoolean("default.behavior.hopper-pickup", false);
 
-        var section = config.getConfigurationSection("coins");
-        if (section == null) {
-            service.printConfigWarning(getFileName(), "There are no defined coins in the config, `coins` section missing.");
+        var coinsSection = config.getConfigurationSection("coins");
+        if (coinsSection == null) {
+            addWarn("There are no defined coins in the config, `coins` section missing.");
             return;
         }
 
         Map<String, DefinedCoin> configured = new HashMap<>();
-        for (String coinName : section.getKeys(false)) {
-            ConfigurationSection coin = section.getConfigurationSection(coinName);
-            if (coin == null) {
+        for (String name : coinsSection.getKeys(false)) {
+            ConfigurationSection section = coinsSection.getConfigurationSection(name);
+            if (section == null) {
                 continue; // todo maybe a warning
             }
 
-            String id = coinName.toLowerCase();
+            String id = name.toLowerCase();
             if (id.isEmpty() || configured.containsKey(id)) {
-                service.printConfigWarning(
-                    getFileName(),
-                    "Found already defined coin with id '%s'. Cannot define multiple coins with the same id.".formatted(id)
-                );
+                addWarn("Found already defined coin with id '%s'. Cannot define multiple coins with the same id.".formatted(id));
                 continue;
             }
 
-            Optional<ItemStack> item = getItemValue(coin, defaultItem.orElse(null), id);
+            Optional<ItemStack> item = getItemValue(section, defaultItem.orElse(null), id);
             if (item.isEmpty()) {
-                service.printConfigWarning(getFileName(), "Invalid item name found for coin '%s'.".formatted(id));
+                addWarn("Item type not found for coin '%s'.".formatted(name));
                 continue;
             }
 
-            String singularName = coin.getString("name.singular", defaultSingularName);
-            String pluralName = coin.getString("name.plural", defaultPluralName);
-            boolean immutable = coin.getBoolean("name.immutable", defaultImmutable);
-            boolean enchanted = coin.getBoolean("meta.enchanted", defaultEnchanted);
-            List<String> itemModel = coin.getStringList("meta.model-strings");
+            String currencyName = section.getString("currency", defaultCurrency);
+            Optional<EconomyHook> hook = coins.getEconomyService().getEconomy(currencyName);
+            if (hook.isEmpty()) {
+                addWarn("Currency '%s' not found for coin '%s'.".formatted(currencyName, name));
+                continue;
+            }
+
+            String currency = hook.get().getName();
+            String singularName = section.getString("name.singular", defaultSingularName);
+            String pluralName = section.getString("name.plural", defaultPluralName);
+            boolean immutable = section.getBoolean("name.immutable", defaultImmutable);
+            boolean enchanted = section.getBoolean("meta.enchanted", defaultEnchanted);
+            List<String> itemModel = section.getStringList("meta.model-strings");
             if (itemModel.isEmpty()) {
                 itemModel.addAll(defaultItemModel);
             }
-            List<String> lore = coin.getStringList("meta.lore");
+            List<String> lore = section.getStringList("meta.lore");
             if (lore.isEmpty()) {
                 lore.addAll(defaultLore);
             }
-            String glowColor = coin.getString("meta.glow-color", defaultGlowColor);
-            boolean hologram = coin.getBoolean("meta.hologram", defaultHologram);
-            boolean itemMerge = coin.getBoolean("behavior.item-merge", defaultItemMerge);
-            boolean hopperPickup = coin.getBoolean("behavior.hopper-pickup", defaultHopperPickup);
+            String glowColor = section.getString("meta.glow-color", defaultGlowColor);
+            boolean hologram = section.getBoolean("meta.hologram", defaultHologram);
+            boolean itemMerge = section.getBoolean("behavior.item-merge", defaultItemMerge);
+            boolean hopperPickup = section.getBoolean("behavior.hopper-pickup", defaultHopperPickup);
 
             Component singularNameComponent = ComponentUtil.parse(singularName);
             Component pluralNameComponent = ComponentUtil.parse(pluralName);
@@ -126,11 +110,12 @@ public final class CoinsConfig implements FileConfig<DefinedCoin> {
             ItemMeta meta = itemStack.getItemMeta();
 
             if (meta == null) {
-                service.printConfigWarning(getFileName(), "Invalid item found for coin '%s'.".formatted(id));
+                addWarn("Invalid item found for coin '%s'.".formatted(name));
                 continue;
             }
 
             coins.getComponentApi().setDisplayName(meta, singularNameComponent);
+            coins.getCoinService().getCoinMeta().setCoinCurrency(meta, currency);
 
             if (immutable) {
                 coins.getCoinService().getCoinMeta().setImmutableProperty(meta, true);
@@ -164,10 +149,7 @@ public final class CoinsConfig implements FileConfig<DefinedCoin> {
                     coins.getCoinService().getCoinMeta().setGlowProperty(meta, color);
                 }
                 catch (NoSuchElementException exception) {
-                    service.printConfigWarning(
-                        getFileName(),
-                        "Invalid named color found for coin '%s' at `%s`.".formatted(id, "glow-color")
-                    );
+                    addWarn("Invalid named color found for coin '%s' at `%s`.".formatted(name, "glow-color"));
                 }
             }
 
@@ -187,10 +169,7 @@ public final class CoinsConfig implements FileConfig<DefinedCoin> {
             configured.put(id, new DefinedCoin(id, itemStack, singularNameComponent, pluralNameComponent));
         }
 
-        definedCoins.clear();
-        definedCoins.putAll(configured);
-
-        coins.log(Level.INFO, "Loaded %,d defined coin(s) from '%s'.".formatted(definedCoins.size(), getFileName()));
+        putDefinedItems(configured, "coin", "coins");
     }
 
     // parsing specific types

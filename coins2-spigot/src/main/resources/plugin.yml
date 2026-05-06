@@ -7,3 +7,4 @@ libraries:
   - 'net.kyori:adventure-text-minimessage:${versions.adventure}'
   - 'net.kyori:adventure-text-serializer-legacy:${versions.adventure}'
   - 'net.kyori:adventure-text-serializer-plain:${versions.adventure}'
+softdepend: [Vault]

@@ -25,6 +25,7 @@ public final class CoinMeta {
     private final BasicPlugin plugin;
 
     private final NamespacedKey valueKey; // stores a coin's value
+    private final NamespacedKey currencyKey; // currency of the coin
     private final NamespacedKey withdrawnKey; // stores the withdrawer's uuid of the coin
     private final NamespacedKey uniqueKey; // to add a random value so it doesn't stack
     private final NamespacedKey glowKey; // makes the coin glow
@@ -45,6 +46,7 @@ public final class CoinMeta {
         }
 
         this.valueKey = NamespacedKey.fromString("value", plugin);
+        this.currencyKey = NamespacedKey.fromString("currency", plugin);
         this.withdrawnKey = NamespacedKey.fromString("withdrawn", plugin);
         this.uniqueKey = NamespacedKey.fromString("unique", plugin);
         this.glowKey = NamespacedKey.fromString("glow", plugin);
@@ -71,12 +73,21 @@ public final class CoinMeta {
         return item.getItemMeta().getPersistentDataContainer().has(valueKey, PersistentDataType.DOUBLE);
     }
 
+    /// make sure the coin has a currency
     public void setCoinValue(ItemMeta meta, double amount) {
         if (meta == null ||  amount <= 0) {
             return;
         }
 
         meta.getPersistentDataContainer().set(valueKey, PersistentDataType.DOUBLE, amount);
+    }
+
+    public void setCoinCurrency(ItemMeta meta, String currency) {
+        if (meta == null || currency == null) {
+            return;
+        }
+
+        meta.getPersistentDataContainer().set(currencyKey, PersistentDataType.STRING, currency.toLowerCase());
     }
 
     public OptionalDouble getCoinValue(ItemStack item) {
@@ -86,6 +97,14 @@ public final class CoinMeta {
 
         Double value = item.getItemMeta().getPersistentDataContainer().get(valueKey, PersistentDataType.DOUBLE);
         return value == null? OptionalDouble.empty() : OptionalDouble.of(value);
+    }
+
+    public Optional<String> getCoinCurrency(ItemStack item) {
+        if (item == null || item.getItemMeta() == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(item.getItemMeta().getPersistentDataContainer().get(currencyKey, PersistentDataType.STRING));
     }
 
     // coin withdrawal

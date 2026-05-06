@@ -9,3 +9,21 @@
 #   ░░░░░░░░░   ░░░░░░  ░░░░░░ ░░░ ░░░░░░ ░░░░░     ░░░░░░░░░░  #
 # --- by JustEli --- https://plugin.coins.community/discord --- #
 
+default:
+  deposit:
+    message: '<#148C30>↑ <#6DD47E>{format}'
+    position: 'actionbar'
+
+# currently only supporting Vault
+currencies:
+  'Vault': # id; changing this identifier will make existing coins not able to be picked up
+    economy: 'Vault' # the plugin (case-sensitive) can be multiple currencies if supported
+    decimals: 2
+    symbol: '¢'
+    name:
+      singular: 'Coin'
+      plural: 'Coins'
+    format: '{amount}{symbol}' # renders as '1.23¢'
+    deposit:
+      message: '<#148C30>↑ <#6DD47E>{format}'
+      position: 'actionbar'

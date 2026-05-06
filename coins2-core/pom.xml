@@ -37,6 +37,14 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- currency/economy hooks -->
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7.1</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- by default in Paper, added in plugin.yml for Spigot -->
         <dependency>
             <groupId>net.kyori</groupId>

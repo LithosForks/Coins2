@@ -40,7 +40,6 @@ public final class CoinsPaper extends CoinsCore {
     @Override
     public void afterCoreLoaded() {
         new TestLogic(this);
-        getLogger().info("Loaded CoinsPaper");
     }
 
     public void registerCommand(LiteralCommandNode<CommandSourceStack> node, String description, Collection<String> aliases) {

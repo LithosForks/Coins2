@@ -1,15 +1,14 @@
 package community.coins.plugin.handler;
 
 import community.coins.plugin.CoinsCore;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
@@ -17,41 +16,32 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Eli
- * @since April 30, 2026
+ * @since May 05, 2026
  */
-public final class CoinBehaviourHandler implements Listener {
+public final class CancellationHandler implements Listener {
     private final CoinsCore coins;
-
-    public CoinBehaviourHandler(CoinsCore coins) {
+    public CancellationHandler(CoinsCore coins) {
         this.coins = coins;
-        coins.parseEventHandlers(this);
     }
 
-    // apply characteristics of coins that are not present as ItemStack, but only as Item
-    @EventHandler(ignoreCancelled = true)
-    void onItemSpawnEvent(ItemSpawnEvent event) {
-        var item = event.getEntity();
-        coins.getCoinService().getCoinMeta().applyGlowIfPresent(item);
-        coins.getCoinService().getCoinMeta().applyHologramIfPresent(item);
-        coins.getCoinService().getCoinMeta().applyUniqueIfPresent(item);
-    }
-
-    // remove the uniqueness of the coin, so it can stack in the inventory again
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler
     void onEntityPickupItemEvent(EntityPickupItemEvent event) {
-        coins.getCoinService().getCoinMeta().removeUniqueIfPresent(event.getItem());
-    }
+        if (event.getEntity() instanceof Player) {
+            return; // already handled at other places
+        }
 
-    // prevent coins from being picked up by hoppers if configured that way
-    @EventHandler(ignoreCancelled = true)
-    void onInventoryPickupItemEvent(InventoryPickupItemEvent event) {
-        if (event.getInventory().getType() != InventoryType.HOPPER) {
+        Item item = event.getItem();
+        if (!coins.getCoinService().getCoinMeta().isCoin(item.getItemStack())) {
             return;
         }
 
-        if (coins.getCoinService().getCoinMeta().isNoHopperPickup(event.getItem())) {
-            event.setCancelled(true);
+        // don't let mobs pick up coins that are already being picked up by players
+        // only canceled when the pickup delay was set (to prevent double pickup)
+        if (item.getPickupDelay() == 0) {
+            return;
         }
+
+        event.setCancelled(true);
     }
 
     // prevent coins with immutable name from being changed

@@ -20,7 +20,7 @@ public final class PlayerPickupCoinRegistrar implements Listener {
         coins.parseEventHandlers(this);
     }
 
-    private static final Vector THROW_VECTOR = new Vector(0, .5, 0);
+    private static final Vector THROW_VECTOR = new Vector(0, .45, 0);
     private static final UUID NO_OWNER_UUID = UUID.fromString("00000001-0001-0001-0001-0000000000AD");
 
     @EventHandler(ignoreCancelled = true)

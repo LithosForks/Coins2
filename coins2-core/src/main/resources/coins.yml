@@ -22,6 +22,7 @@ default:
     singular: '<#F9CE64>Coin'
     plural: '<#F9CE64>Coins'
     immutable: true # keep the name of the coin unchanged (no anvil modification)
+  currency: 'Vault' # not the plugin, but from currencies.yml
   meta:
     enchanted: false
     glow-color: 'none' # named text color, i.e. green, light_purple

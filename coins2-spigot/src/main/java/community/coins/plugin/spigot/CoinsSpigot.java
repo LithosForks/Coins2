@@ -22,7 +22,7 @@ public final class CoinsSpigot extends CoinsCore {
 
     @Override
     public void beforeCoreLoaded() {
-        this.componentApi = new ComponentApiSpigot();
+        this.componentApi = new ComponentApiSpigot(this);
         this.itemParseApi = new ItemParseApiSpigot(this);
         this.pluginAttributes = new PluginAttributesSpigot(this);
 
@@ -33,7 +33,6 @@ public final class CoinsSpigot extends CoinsCore {
 
     @Override
     public void afterCoreLoaded() {
-        getLogger().info("Loaded CoinsSpigot");
     }
 
     @Override

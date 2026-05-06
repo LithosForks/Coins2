@@ -1,4 +1,4 @@
-package community.coins.plugin.config;
+package community.coins.plugin.drops;
 
 /**
  * @author Eli

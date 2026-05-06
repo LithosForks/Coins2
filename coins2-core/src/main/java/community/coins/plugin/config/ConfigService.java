@@ -2,10 +2,7 @@ package community.coins.plugin.config;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.language.LanguageParser;
-import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.nio.file.Files;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
 /**
@@ -14,7 +11,8 @@ import java.util.logging.Level;
  */
 public final class ConfigService {
     private final CoinsCore coins;
-    private final ConfigParser configParser;
+    private final MainConfig mainConfig;
+    private final CurrenciesConfig currenciesConfig;
     private final CoinsConfig coinsConfig;
     private final DropsConfig dropsConfig;
     private final LanguageParser languageParser;
@@ -24,15 +22,21 @@ public final class ConfigService {
     // nothing depends on language, so that can always go last
     public ConfigService(CoinsCore coins) {
         this.coins = coins;
-        this.configParser = new ConfigParser(coins, this);
+
+        this.mainConfig = new MainConfig(coins, this);
+        this.currenciesConfig = new CurrenciesConfig(coins, this);
         this.coinsConfig = new CoinsConfig(coins, this);
         this.dropsConfig = new DropsConfig(coins, this);
-        this.languageParser = new LanguageParser(coins, this);
+        this.languageParser = new LanguageParser(coins);
 
         reload();
     }
 
     // different configs
+
+    public CurrenciesConfig getCurrencyConfig() {
+        return currenciesConfig;
+    }
 
     public CoinsConfig getCoinsConfig() {
         return coinsConfig;
@@ -43,45 +47,22 @@ public final class ConfigService {
     }
 
     public void reload() {
-        warnings.set(0);
+        coins.getConfigWarns().clearWarnings();
 
-        configParser.parseAndInject(ConfigYml.class);
+        mainConfig.parseAndReload();
+        currenciesConfig.parseAndReload();
         coinsConfig.parseAndReload();
         dropsConfig.parseAndReload();
         languageParser.reloadLanguage();
 
-        if (warnings.get() == 0) {
+        int size = coins.getConfigWarns().getWarnings();
+        if (size == 0) {
             return;
         }
 
         coins.log(Level.WARNING, """
-            Loaded the config of Coins with %d warnings. See above here for details.""".formatted(warnings.get())
+            Loaded the configs of Coins with %,d warnings. See above here for details."""
+            .formatted(size)
         );
-    }
-
-    // config util
-
-    public YamlConfiguration getOrCreateConfig(String fileName) {
-        var configFile = coins.getDataFolder().toPath().resolve(fileName);
-
-        if (!Files.exists(configFile)) {
-            coins.saveResource(fileName, false);
-        }
-
-        return YamlConfiguration.loadConfiguration(configFile.toFile());
-    }
-
-    // warnings
-
-    private final AtomicInteger warnings = new AtomicInteger(0);
-
-    public void addWarning(String message) {
-        int warning = warnings.incrementAndGet();
-        coins.log(Level.WARNING, "#%,d: %s".formatted(warning, message));
-    }
-
-    public void printConfigWarning(String config, String message) {
-        int warning = warnings.incrementAndGet();
-        coins.log(Level.WARNING, "[%s] #%,d: %s".formatted(config, warning, message));
     }
 }

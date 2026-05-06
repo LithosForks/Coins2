@@ -1,9 +1,9 @@
 package community.coins.plugin.type.registrar;
 
 import community.coins.plugin.CoinsCore;
-import community.coins.plugin.config.DepositType;
 import community.coins.plugin.drops.CoinDropAction;
 import community.coins.plugin.drops.DefinedDrop;
+import community.coins.plugin.drops.DepositType;
 import community.coins.plugin.type.EventTypeService;
 import community.coins.plugin.type.filter.EventFilterForm;
 import community.coins.plugin.type.filter.FilterContract;
@@ -45,8 +45,8 @@ public abstract class EventType implements Listener {
     @NullMarked
     public EventType(CoinsCore coins, EventTypeService service, String identifier, Function<FilterContractBuilder, FilterContractBuilder> contract) {
         this.coins = coins;
-        this.identifier = identifier;
-        this.filterContract = contract.apply(new FilterContractBuilder(coins, this)).build();
+        this.identifier = identifier.toLowerCase();
+        this.filterContract = contract.apply(new FilterContractBuilder(this)).build();
         service.registerEventType(this);
     }
 
@@ -126,6 +126,7 @@ public abstract class EventType implements Listener {
         return filterContract;
     }
 
+    /// @return already lowercase identifier
     public String getIdentifier() {
         return identifier;
     }

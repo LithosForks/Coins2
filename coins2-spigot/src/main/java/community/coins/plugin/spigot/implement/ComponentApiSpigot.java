@@ -1,12 +1,16 @@
 package community.coins.plugin.spigot.implement;
 
 import community.coins.plugin.api.ComponentApi;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scoreboard.Team;
 import org.jspecify.annotations.NullMarked;
 
@@ -19,6 +23,11 @@ import java.util.List;
  */
 @NullMarked
 public final class ComponentApiSpigot implements ComponentApi {
+    private final BukkitAudiences audiences;
+    public ComponentApiSpigot(Plugin plugin) {
+        this.audiences = BukkitAudiences.create(plugin);
+    }
+
     private static final LegacyComponentSerializer HEX_SERIALIZER =
         LegacyComponentSerializer.builder().hexColors().useUnusualXRepeatedCharacterHexFormat().build();
 
@@ -51,5 +60,10 @@ public final class ComponentApiSpigot implements ComponentApi {
         }
 
         item.setCustomName(meta.getDisplayName());
+    }
+
+    @Override
+    public Audience getAudience(CommandSender sender) {
+        return audiences.sender(sender);
     }
 }

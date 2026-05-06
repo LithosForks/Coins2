@@ -1,6 +1,5 @@
 package community.coins.plugin.type.filter;
 
-import community.coins.plugin.CoinsCore;
 import community.coins.plugin.type.registrar.EventType;
 
 import java.util.HashSet;
@@ -12,16 +11,13 @@ import java.util.Set;
  * @since May 02, 2026
  */
 public final class FilterContractBuilder {
-    private final CoinsCore coins;
     private final EventType eventType;
-
-    public FilterContractBuilder(CoinsCore coins, EventType eventType) {
-        this.coins = coins;
+    public FilterContractBuilder(EventType eventType) {
         this.eventType = eventType;
     }
 
     public FilterContract build() {
-        return new FilterContract(coins, eventType, allowedPaths);
+        return new FilterContract(eventType, allowedPaths);
     }
 
     // allowed paths in the config
