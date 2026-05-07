@@ -53,7 +53,7 @@ public abstract class CoinsCore extends BasicPlugin {
         this.versionCheck = new VersionCheck(this);
         VIRTUAL_EXECUTOR.submit(() -> versionCheck.findLatestVersion(ConfigYml.NOTIFY_ON_UPDATE));
 
-        new Stats(this);
+        this.stats = new Stats(this);
 
         // some event handling
         new CancellationHandler(this);
@@ -121,6 +121,11 @@ public abstract class CoinsCore extends BasicPlugin {
     private VersionCheck versionCheck;
     public VersionCheck getVersionCheck() {
         return versionCheck;
+    }
+
+    private Stats stats;
+    public Stats getMetrics() {
+        return stats;
     }
 
     public abstract void loadImplementations();

@@ -109,6 +109,8 @@ public abstract class EventType implements Listener {
                     else if (dropLocation.getWorld() != null) {
                         dropLocation.getWorld().dropItemNaturally(dropLocation, coin);
                     }
+
+                    coins.getMetrics().registerCoinCreate(coin.getAmount());
                 }
             }
         });

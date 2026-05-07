@@ -40,6 +40,14 @@ public final class ConfigService {
         return coinsConfig;
     }
 
+    public DropsConfig getDropsConfig() {
+        return dropsConfig;
+    }
+
+    public CurrenciesConfig getCurrenciesConfig() {
+        return currenciesConfig;
+    }
+
     public void reload() {
         coins.getConfigWarns().clearWarnings();
 

@@ -21,11 +21,3 @@ locale: 'en-US'
 
 # Show a message on start-up when an update is available for the plugin.
 notify-on-update: true
-
-# Coloring of messages and items. HEX-codes and color names work. Examples: 'dark green',
-#  '#197419', 'DARK_AQUA'.
-colors:
-  primary: f5b62e  # Primary text in messages
-  values: f2b794   # Filled in values in messages
-  currency: 6dd47e # Displaying currency in messages
-  negative: e94b3c # Negative currency in messages
