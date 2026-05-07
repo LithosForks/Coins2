@@ -8,7 +8,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 
 /**
- * todo test on spigot
  * @author Eli
  * @since May 04, 2026
  */

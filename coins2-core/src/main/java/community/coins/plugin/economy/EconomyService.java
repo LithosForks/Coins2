@@ -3,13 +3,22 @@ package community.coins.plugin.economy;
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.component.ComponentUtil;
 import community.coins.plugin.config.ConfigWarns;
+import community.coins.plugin.config.MessagePosition;
 import community.coins.plugin.economy.hook.VaultEconomyHook;
+import net.kyori.adventure.text.Component;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -18,10 +27,11 @@ import java.util.logging.Level;
  * @author Eli
  * @since May 05, 2026
  */
-public final class EconomyService {
+public final class EconomyService implements Listener {
     private final CoinsCore coins;
     public EconomyService(CoinsCore coins) {
         this.coins = coins;
+        coins.parseEventHandlers(this);
 
         // economy: 'Vault'
         hookIfInstalled(
@@ -97,15 +107,76 @@ public final class EconomyService {
             return Optional.empty();
         }
 
-        return getEconomy(economyName).flatMap(economy -> economy.getCurrency(economyName));
+        return getEconomy(economyName).flatMap(economy -> economy.getCurrency(currency));
     }
 
     public void submitTransaction(DefinedCurrency currency, Consumer<EconomyAction> action) {
         action.accept(currency.getEconomyHook());
     }
 
+    /// deposit the coin into the right currency and value, including deposit message and pickup sound
+    /// @return true if successful deposit of coin
+    public boolean depositCoin(Player player, ItemStack coin) {
+        Optional<DefinedCurrency> currency = coins.getCoinService().getCoinMeta().getCoinDefinedCurrency(coin);
+        if (currency.isEmpty()) {
+            coins.getLogger().warning("""
+                Attached currency to coin with item type '%s' was not found. Consider to add it to 'currencies.yml' again."""
+                .formatted(coin.getType().getKey())
+            );
+            return false;
+        }
+
+        OptionalDouble value = coins.getCoinService().getCoinMeta().getCoinValue(coin);
+        if (value.isEmpty()) {
+            return false;
+        }
+
+        coins.getEconomyService().submitTransaction(currency.get(), transaction -> {
+            if (transaction.deposit(player.getUniqueId(), value.getAsDouble())) {
+                sendDepositMessage(currency.get(), player, value.getAsDouble());
+                coins.getCoinService().getCoinMeta().playSound(player, coin);
+            }
+        });
+        return true;
+    }
+
+    // coin pickup messages
+
+    private final Map<UUID, Double> pickupAmountCache = new ConcurrentHashMap<>();
+    private final Map<UUID, Long> pickupTimeCache = new ConcurrentHashMap<>();
+
+    private static final long ACCUMULATE_MILLIS = 1500;
+
     public void sendDepositMessage(DefinedCurrency currency, Player player, double amount) {
-        var component = ComponentUtil.replaceAmount(currency.getDepositMessage(), currency.formatAmount(amount));
+        UUID uuid = player.getUniqueId();
+
+        double displayAmount;
+        if (currency.getDepositPosition() == MessagePosition.CHAT) {
+            displayAmount = amount; // doesn't have to accumulate in chat
+        }
+        else {
+            if (pickupTimeCache.computeIfAbsent(uuid, _ -> 0L) > System.currentTimeMillis() - ACCUMULATE_MILLIS) {
+                // recently shown actionbar/title
+                double previousAmount = pickupAmountCache.computeIfAbsent(uuid, _ -> 0D);
+                pickupAmountCache.put(uuid, amount + previousAmount);
+            }
+            else {
+                pickupAmountCache.put(uuid, amount);
+            }
+
+            displayAmount = pickupAmountCache.computeIfAbsent(uuid, _ -> 0D);
+            pickupTimeCache.put(uuid, System.currentTimeMillis());
+        }
+
+        Component component = ComponentUtil.replaceAmount(currency.getDepositMessage(), currency.formatAmount(displayAmount));
         coins.getComponentApi().sendMessage(player, currency.getDepositPosition(), component);
+    }
+
+    // clear cache of showing deposits
+    @EventHandler
+    void onPlayerQuitEvent(PlayerQuitEvent event) {
+        var uuid = event.getPlayer().getUniqueId();
+        pickupAmountCache.remove(uuid);
+        pickupTimeCache.remove(uuid);
     }
 }

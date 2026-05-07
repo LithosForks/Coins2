@@ -2,7 +2,7 @@ package community.coins.plugin.config;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.component.ComponentUtil;
-import community.coins.plugin.economy.EconomyHook;
+import community.coins.plugin.economy.DefinedCurrency;
 import community.coins.plugin.item.DefinedCoin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -28,8 +28,7 @@ import java.util.UUID;
  * @since April 28, 2026
  */
 public final class CoinsConfig extends FileConfig<DefinedCoin> {
-    // todo if we ever decide to add currencies, add it to properties of the coin (not drop)
-    // todo add support for allow-modification (immutable but not only coin display name)
+    // todo change immutable in config from name.immutable to just immutable (its not only name)
     public CoinsConfig(CoinsCore coins, ConfigService service) {
         super(coins, service, "coins.yml");
     }
@@ -40,11 +39,11 @@ public final class CoinsConfig extends FileConfig<DefinedCoin> {
     public void parseAndReload() {
         var config = getOrCreateConfig();
 
+        String defaultCurrency = config.getString("default.currency", "vault_balance"); // maybe to 'physical' when available
         Optional<ItemStack> defaultItem = getItemValue(config.getConfigurationSection("default"), null, "defined_coin");
         String defaultSingularName = config.getString("default.name.singular", "Coin");
         String defaultPluralName = config.getString("default.name.plural", "Coins");
         boolean defaultImmutable = config.getBoolean("default.name.immutable", true);
-        String defaultCurrency = config.getString("default.currency", "Vault"); // maybe to 'physical' when available
         boolean defaultEnchanted = config.getBoolean("default.meta.enchanted", false);
         List<String> defaultItemModel = config.getStringList("default.meta.model-strings");
         List<String> defaultLore = config.getStringList("default.meta.lore");
@@ -52,6 +51,9 @@ public final class CoinsConfig extends FileConfig<DefinedCoin> {
         boolean defaultHologram = config.getBoolean("default.meta.hologram", false);
         boolean defaultItemMerge = config.getBoolean("default.behavior.item-merge", false);
         boolean defaultHopperPickup = config.getBoolean("default.behavior.hopper-pickup", false);
+        String defaultDepositSound = config.getString("default.deposit.sound");
+        double defaultDepositVolume = config.getDouble("default.deposit.volume", .5);
+        double defaultDepositPitch = config.getDouble("default.deposit.pitch", .3);
 
         var coinsSection = config.getConfigurationSection("coins");
         if (coinsSection == null) {
@@ -63,7 +65,7 @@ public final class CoinsConfig extends FileConfig<DefinedCoin> {
         for (String name : coinsSection.getKeys(false)) {
             ConfigurationSection section = coinsSection.getConfigurationSection(name);
             if (section == null) {
-                continue; // todo maybe a warning
+                continue;
             }
 
             String id = name.toLowerCase();
@@ -79,13 +81,12 @@ public final class CoinsConfig extends FileConfig<DefinedCoin> {
             }
 
             String currencyName = section.getString("currency", defaultCurrency);
-            Optional<EconomyHook> hook = coins.getEconomyService().getEconomy(currencyName);
-            if (hook.isEmpty()) {
+            Optional<DefinedCurrency> currency = coins.getEconomyService().getCurrency(currencyName);
+            if (currency.isEmpty()) {
                 addWarn("Currency '%s' not found for coin '%s'.".formatted(currencyName, name));
                 continue;
             }
 
-            String currency = hook.get().getName();
             String singularName = section.getString("name.singular", defaultSingularName);
             String pluralName = section.getString("name.plural", defaultPluralName);
             boolean immutable = section.getBoolean("name.immutable", defaultImmutable);
@@ -102,6 +103,9 @@ public final class CoinsConfig extends FileConfig<DefinedCoin> {
             boolean hologram = section.getBoolean("meta.hologram", defaultHologram);
             boolean itemMerge = section.getBoolean("behavior.item-merge", defaultItemMerge);
             boolean hopperPickup = section.getBoolean("behavior.hopper-pickup", defaultHopperPickup);
+            String depositSound = section.getString("deposit.sound", defaultDepositSound);
+            double depositVolume = section.getDouble("deposit.volume", defaultDepositVolume);
+            double depositPitch = section.getDouble("deposit.pitch", defaultDepositPitch);
 
             Component singularNameComponent = ComponentUtil.parse(singularName);
             Component pluralNameComponent = ComponentUtil.parse(pluralName);
@@ -115,7 +119,7 @@ public final class CoinsConfig extends FileConfig<DefinedCoin> {
             }
 
             coins.getComponentApi().setDisplayName(meta, singularNameComponent);
-            coins.getCoinService().getCoinMeta().setCoinCurrency(meta, currency);
+            coins.getCoinService().getCoinMeta().setCoinCurrency(meta, currency.get());
 
             if (immutable) {
                 coins.getCoinService().getCoinMeta().setImmutableProperty(meta, true);
@@ -163,6 +167,10 @@ public final class CoinsConfig extends FileConfig<DefinedCoin> {
 
             if (!hopperPickup) {
                 coins.getCoinService().getCoinMeta().setNoHopperPickupProperty(meta, true);
+            }
+
+            if (depositSound != null) {
+                coins.getCoinService().getCoinMeta().setSoundProperty(meta, depositSound, depositVolume, depositPitch);
             }
 
             itemStack.setItemMeta(meta);

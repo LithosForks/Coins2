@@ -104,19 +104,33 @@ drops:
       'sun_coin':
         value: [30, 50]
         chance: 0.02
-  'crop_harvest':
+  'player_crop_harvest':
     event: 'crop_harvest'
     filters:
       initiator:
-        type: ['minecraft:player'] # can also be/add 'minecraft:villager'
+        type: ['minecraft:player']
       location:
         cooldown:
           cap-amount: 1
-          duration: '2h'
+          duration: '6h'
     coins:
       'bronze_coin':
         value: 1
-        chance: 0.20
+        chance: 0.33
+  'villager_crop_harvest':
+    event: 'crop_harvest'
+    enabled: false
+    filters:
+      initiator:
+        type: ['minecraft:villager']
+      location:
+        cooldown:
+          cap-amount: 1
+          duration: '12h'
+    coins:
+      'bronze_coin':
+        value: 1
+        chance: 0.05
   'animal_breed':
     event: 'entity_breed'
     filters:
@@ -248,7 +262,8 @@ drops:
         chance: 0.20
   'potion_brew':
     event: 'potion_brew'
-    filters:
+    enabled: false
+    filters: # initiator player not supported (yet)
       location:
         cooldown:
           cap-amount: 1

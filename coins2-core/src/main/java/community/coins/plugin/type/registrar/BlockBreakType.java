@@ -31,7 +31,6 @@ public final class BlockBreakType extends EventType {
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#block_break
 
-    // todo default config set xp to drop > 0
     @EventHandler(ignoreCancelled = true)
     void onBlockBreakEvent(BlockBreakEvent event) {
         var player = event.getPlayer();

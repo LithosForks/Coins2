@@ -26,9 +26,9 @@ public final class DropsConfig extends FileConfig<DefinedDrop> {
         super(coins, service, "drops.yml");
 
         // clean up unused cache
-        // todo this has not been tested
         SCHEDULED_THREAD.scheduleAtFixedRate(() -> {
             getDefinedItems().forEach(DefinedDrop::cleanUpLocationCache);
+            coins.debug("Cleared all location cooldown caches");
         }, 10, 10, TimeUnit.MINUTES);
     }
 
@@ -85,8 +85,9 @@ public final class DropsConfig extends FileConfig<DefinedDrop> {
             // create a DefinedCoinDrop from the "coins" section
             ConfigurationSection coinsSection = section.getConfigurationSection("coins");
             if (coinsSection == null) {
-                continue; // todo warning
+                continue;
             }
+
             DefinedCoinDrop definedCoinDrop = new DefinedCoinDrop(service, configWarns, coinsSection);
 
             // now we have a DefinedDrop with EventType, EventFilterConfig and DefinedCoinDrop

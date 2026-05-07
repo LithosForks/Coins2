@@ -9,6 +9,7 @@ import community.coins.plugin.spigot.implement.ItemParseApiSpigot;
 import community.coins.plugin.spigot.implement.PluginAttributesSpigot;
 import community.coins.plugin.spigot.registrar.AdvancementDisplayRegistrar;
 import community.coins.plugin.spigot.registrar.PickupItemRegistrar;
+import community.coins.plugin.spigot.test.TestLogic;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -33,6 +34,7 @@ public final class CoinsSpigot extends CoinsCore {
 
     @Override
     public void afterCoreLoaded() {
+        new TestLogic(this);
     }
 
     @Override

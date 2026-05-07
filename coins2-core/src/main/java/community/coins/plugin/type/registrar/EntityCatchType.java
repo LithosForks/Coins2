@@ -36,6 +36,6 @@ public final class EntityCatchType extends EventType {
             .withLocationWorld(item.getWorld())
             .withLocationCooldown(item.getLocation());
 
-        callEvent(filter, item.getLocation()); // todo test, otherwise player.getLocation()
+        callEvent(filter, event.getPlayer().getLocation());
     }
 }

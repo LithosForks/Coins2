@@ -26,7 +26,7 @@ public final class DefinedCoinDrop {
         for (String coinName : coinsSection.getKeys(false)) {
             Optional<DefinedCoin> definedCoin = service.getCoinsConfig().getDefinedItem(coinName);
             if (definedCoin.isEmpty()) {
-                warns.warn("No coin found with name " + coinName); // todo add drop name
+                warns.warn("No coin found with name " + coinName);
                 continue;
             }
 
@@ -37,7 +37,7 @@ public final class DefinedCoinDrop {
 
             double chance = section.getDouble("chance", 1);
             if (chance <= 0 || chance > 1) {
-                continue; // todo warn when the total sum of chance exceeds 1.00
+                continue;
             }
 
             double min = section.getDouble("value", -1);
@@ -63,6 +63,10 @@ public final class DefinedCoinDrop {
 
             total += chance;
             coinChances.put(total, new AmountedCoin(min, max, definedCoin.get()));
+        }
+
+        if (total > 1) {
+            warns.warn("The total chance has exceeded 100% (more than 1.00).");
         }
     }
 

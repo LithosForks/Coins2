@@ -2,6 +2,7 @@ package community.coins.plugin.type.registrar;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.type.EventTypeService;
+import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.BrewEvent;
 
@@ -19,16 +20,16 @@ public final class PotionBrewType extends EventType {
 
     // https://github.com/justEli/Coins2/wiki/Defining-drop-filters#potion_brew
 
-    // todo never tested before
     @EventHandler(ignoreCancelled = true)
     void onBrewEvent(BrewEvent event) {
         // todo get player from who brewed it
+        // todo add filter for (potion) effect type
 
         var block = event.getBlock();
         var filter = createFilter()
             .withLocationWorld(block.getWorld())
             .withLocationCooldown(block.getLocation());
 
-        callEvent(filter, event.getBlock());
+        callEvent(filter, event.getBlock().getRelative(BlockFace.UP));
     }
 }

@@ -10,7 +10,7 @@ import org.bstats.charts.SimplePie;
  */
 public final class Stats {
     public Stats(CoinsCore coins) {
-        Metrics metrics = new Metrics(coins, 30976);
+        Metrics metrics = new Metrics(coins, 31147);
         metrics.addCustomChart(new SimplePie("chart_id", () -> "My value"));
     }
 }

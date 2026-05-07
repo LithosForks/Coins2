@@ -92,7 +92,6 @@ public final class FilterContract {
             }
             else {
                 warns.warn("Found an invalid cooldown duration.");
-                // todo improve warning
             }
         }
 
@@ -102,7 +101,6 @@ public final class FilterContract {
     private boolean contains(String path, ConfigurationSection conf, ConfigurationSection def, ConfigWarns.Named warns) {
         if (!configPaths.contains(path)) { // if config path is not supported
             if (conf.contains(path)) {
-                // todo improve warning adding eventIdentifier
                 warns.warn("Found '%s' in config where it is not supported.");
             }
             return false;
@@ -116,7 +114,6 @@ public final class FilterContract {
         for (String value : values) {
             var name = NamespacedKey.fromString(value);
             if (name == null) {
-                // todo improve warning adding eventIdentifier
                 warns.warn("Invalid type found for event type '%s'.".formatted(eventType));
                 continue;
             }

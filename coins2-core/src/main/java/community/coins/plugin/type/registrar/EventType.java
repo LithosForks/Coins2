@@ -28,7 +28,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * todo could also be expanded by other plugins, so a registrar of some sorts
  * @author Eli
  * @since May 01, 2026
  */
@@ -36,6 +35,8 @@ public abstract class EventType implements Listener {
     private final CoinsCore coins;
     private final String identifier;
     private final FilterContract filterContract; // the filter that is allowed for this event type
+
+    // todo could also be expanded by other plugins, so a registrar of some sorts
 
     /**
      * @param identifier the identifier of the event type (i.e. "advancement_done")
@@ -100,7 +101,7 @@ public abstract class EventType implements Listener {
 
                 for (ItemStack coin : action.getCoinItems()) {
                     if (depositType == DepositType.BALANCE && initiator instanceof Player player) {
-                        // todo deposit coin's value to balance
+                        coins.getEconomyService().depositCoin(player, coin);
                     }
                     else if (depositType == DepositType.INVENTORY && initiator instanceof Player player) {
                         player.getInventory().addItem(coin);

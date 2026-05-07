@@ -47,12 +47,17 @@ public final class ComponentApiSpigot implements ComponentApi {
         meta.setLore(lore);
     }
 
-    @Override // todo test
+    @Override
     public void setTeamColor(Team team, NamedTextColor color) {
-        team.setColor(ChatColor.valueOf(color.examinableName().toUpperCase()));
+        var name = NamedTextColor.NAMES.key(color);
+        if (name == null) {
+            return;
+        }
+
+        team.setColor(ChatColor.valueOf(name.toUpperCase()));
     }
 
-    @Override // todo test
+    @Override
     public void applyDisplayName(Item item) {
         var meta = item.getItemStack().getItemMeta();
         if (meta == null) {

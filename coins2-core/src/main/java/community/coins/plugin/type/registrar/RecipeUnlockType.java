@@ -34,7 +34,7 @@ public final class RecipeUnlockType extends EventType {
             return;
         }
 
-        // todo #setTarget for Material
+        // todo #setTargetType for the item type(s) of the recipe
         var filter = createFilter()
             .withInitiatorEntity(player)
             .withLocationWorld(player.getWorld());

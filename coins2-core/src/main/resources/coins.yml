@@ -22,7 +22,7 @@ default:
     singular: '<#F9CE64>Coin'
     plural: '<#F9CE64>Coins'
     immutable: true # keep the name of the coin unchanged (no anvil modification)
-  currency: 'Vault' # not the plugin, but from currencies.yml
+  currency: 'vault_balance' # from currencies.yml
   meta:
     enchanted: false
     glow-color: 'none' # named text color, i.e. green, light_purple
@@ -32,7 +32,12 @@ default:
   behavior:
     item-merge: false # coins to merge when on the ground (of same value only)
     hopper-pickup: false
+  deposit:
+    sound: 'minecraft:item.armor.equip_gold'
+    volume: 0.50
+    pitch: 0.30
 
+# defining different coins, and override default values, mostly used for 'item' and 'name'
 coins:
   'enchanted_gold_coin':
     item: 'minecraft:gold_nugget'
@@ -70,6 +75,8 @@ coins:
     meta:
       enchanted: true
       glow-color: 'gold'
+    deposit:
+      sound: 'minecraft:entity.experience_orb.pickup'
 
   'bag_of_coins':
     item:
@@ -80,3 +87,5 @@ coins:
       plural: '<#FFFF55>Bags of Coins'
     meta:
       hologram: true
+    deposit:
+      sound: 'minecraft:item.armor.equip_copper'

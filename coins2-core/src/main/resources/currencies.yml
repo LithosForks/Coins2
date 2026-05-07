@@ -16,7 +16,7 @@ default:
 
 # currently only supporting Vault
 currencies:
-  'Vault': # id; changing this identifier will make existing coins not able to be picked up
+  'vault_balance': # id; changing this identifier will make existing coins not able to be picked up
     economy: 'Vault' # the plugin (case-sensitive) can be multiple currencies if supported
     decimals: 2
     symbol: '¢'

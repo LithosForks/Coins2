@@ -1,16 +1,19 @@
 package community.coins.plugin.item;
 
-import community.coins.plugin.api.BasicPlugin;
+import community.coins.plugin.CoinsCore;
+import community.coins.plugin.economy.DefinedCurrency;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -22,7 +25,7 @@ import java.util.UUID;
  * @since April 30, 2026
  */
 public final class CoinMeta {
-    private final BasicPlugin plugin;
+    private final CoinsCore coins;
 
     private final NamespacedKey valueKey; // stores a coin's value
     private final NamespacedKey currencyKey; // currency of the coin
@@ -32,29 +35,35 @@ public final class CoinMeta {
     private final NamespacedKey hologramKey; // set the display name visible
     private final NamespacedKey noHopperKey; // when coin shouldn't be picked up by hoppers
     private final NamespacedKey immutableKey; // cancel name changes of coin
+    private final NamespacedKey soundKey;
+    private final NamespacedKey volumeKey;
+    private final NamespacedKey pitchKey;
 
     private Scoreboard scoreboard;
     private static final String TEAM_PREFIX = "coins_glow_";
 
     private static final SplittableRandom RANDOM = new SplittableRandom();
 
-    public CoinMeta(BasicPlugin plugin) {
-        this.plugin = plugin;
-        var manager = plugin.getServer().getScoreboardManager();
+    public CoinMeta(CoinsCore coins) {
+        this.coins = coins;
+        var manager = coins.getServer().getScoreboardManager();
         if (manager != null) {
             this.scoreboard = manager.getMainScoreboard();
         }
 
-        this.valueKey = NamespacedKey.fromString("value", plugin);
-        this.currencyKey = NamespacedKey.fromString("currency", plugin);
-        this.withdrawnKey = NamespacedKey.fromString("withdrawn", plugin);
-        this.uniqueKey = NamespacedKey.fromString("unique", plugin);
-        this.glowKey = NamespacedKey.fromString("glow", plugin);
-        this.hologramKey = NamespacedKey.fromString("hologram", plugin);
-        this.noHopperKey = NamespacedKey.fromString("no_hopper", plugin);
-        this.immutableKey = NamespacedKey.fromString("immutable", plugin);
+        this.valueKey = NamespacedKey.fromString("value", coins);
+        this.currencyKey = NamespacedKey.fromString("currency", coins);
+        this.withdrawnKey = NamespacedKey.fromString("withdrawn", coins);
+        this.uniqueKey = NamespacedKey.fromString("unique", coins);
+        this.glowKey = NamespacedKey.fromString("glow", coins);
+        this.hologramKey = NamespacedKey.fromString("hologram", coins);
+        this.noHopperKey = NamespacedKey.fromString("no_hopper", coins);
+        this.immutableKey = NamespacedKey.fromString("immutable", coins);
+        this.soundKey = NamespacedKey.fromString("sound", coins);
+        this.volumeKey = NamespacedKey.fromString("volume", coins);
+        this.pitchKey = NamespacedKey.fromString("pitch", coins);
 
-        plugin.addShutdownTask(() -> scoreboard.getTeams().forEach(team -> {
+        coins.addShutdownTask(() -> scoreboard.getTeams().forEach(team -> {
             if (team.getName().startsWith(TEAM_PREFIX)) {
                 team.unregister();
             }
@@ -69,7 +78,6 @@ public final class CoinMeta {
         }
 
         // a coin always has a value
-        // todo check if this is implemented everywhere
         return item.getItemMeta().getPersistentDataContainer().has(valueKey, PersistentDataType.DOUBLE);
     }
 
@@ -82,12 +90,12 @@ public final class CoinMeta {
         meta.getPersistentDataContainer().set(valueKey, PersistentDataType.DOUBLE, amount);
     }
 
-    public void setCoinCurrency(ItemMeta meta, String currency) {
+    public void setCoinCurrency(ItemMeta meta, DefinedCurrency currency) {
         if (meta == null || currency == null) {
             return;
         }
 
-        meta.getPersistentDataContainer().set(currencyKey, PersistentDataType.STRING, currency.toLowerCase());
+        meta.getPersistentDataContainer().set(currencyKey, PersistentDataType.STRING, currency.getIdentifier());
     }
 
     public OptionalDouble getCoinValue(ItemStack item) {
@@ -105,6 +113,19 @@ public final class CoinMeta {
         }
 
         return Optional.ofNullable(item.getItemMeta().getPersistentDataContainer().get(currencyKey, PersistentDataType.STRING));
+    }
+
+    public Optional<DefinedCurrency> getCoinDefinedCurrency(ItemStack item) {
+        if (item == null || item.getItemMeta() == null) {
+            return Optional.empty();
+        }
+
+        Optional<String> currencyName = getCoinCurrency(item);
+        if (currencyName.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return coins.getEconomyService().getCurrency(currencyName.get());
     }
 
     // coin withdrawal
@@ -228,7 +249,7 @@ public final class CoinMeta {
 
         NamedTextColor namedTextColor = NamedTextColor.nearestTo(TextColor.color(color.get()));
         Team team = getOrCreateTeam(TEAM_PREFIX + namedTextColor.asHexString().substring(1));
-        plugin.getComponentApi().setTeamColor(team, namedTextColor);
+        coins.getComponentApi().setTeamColor(team, namedTextColor);
         team.addEntry(item.getUniqueId().toString());
         item.setGlowing(true);
     }
@@ -251,7 +272,7 @@ public final class CoinMeta {
         }
 
         item.setCustomNameVisible(true);
-        plugin.getComponentApi().applyDisplayName(item);
+        coins.getComponentApi().applyDisplayName(item);
     }
 
     // hopper pickup
@@ -282,5 +303,30 @@ public final class CoinMeta {
 
     public boolean isImmutableName(ItemStack item) {
         return getMeta(item, immutableKey, PersistentDataType.BOOLEAN).isPresent();
+    }
+
+    // coin pickup sound
+
+    public void setSoundProperty(ItemMeta meta, @NotNull String sound, double volume, double pitch) {
+        applyMeta(meta, soundKey, PersistentDataType.STRING, sound.toLowerCase());
+        applyMeta(meta, volumeKey, PersistentDataType.FLOAT, (float) volume);
+        applyMeta(meta, pitchKey, PersistentDataType.FLOAT, (float) pitch);
+    }
+
+    /// @return true if a sound was found on the item, it was then attempted to play
+    @NullMarked
+    public boolean playSound(Player player, ItemStack coin) {
+        Optional<String> sound = getMeta(coin, soundKey, PersistentDataType.STRING);
+        if (sound.isEmpty()) {
+            return false;
+        }
+
+        player.playSound(
+            player.getLocation(),
+            sound.get(),
+            getMeta(coin, volumeKey, PersistentDataType.FLOAT).orElse(1F),
+            getMeta(coin, pitchKey, PersistentDataType.FLOAT).orElse(1F)
+        );
+        return true;
     }
 }
