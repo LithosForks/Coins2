@@ -7,10 +7,10 @@
 # ░░███     ███░███ ░███ ░███  ░███ ░███  ░░░░███    ███      █ #
 #  ░░█████████ ░░██████  █████ ████ █████ ██████    ░██████████ #
 #   ░░░░░░░░░   ░░░░░░  ░░░░░░ ░░░ ░░░░░░ ░░░░░     ░░░░░░░░░░  #
-# --- by JustEli --- https://plugin.coins.community/discord --- #
+# ----- by JustEli ---- https://plugin.coins.community/v2 ----- #
 
-# Different coin variants can be configured in this config. These coins are the base for
-#  some aspects. One place to use these defined coins is in drops.yml.
+# Different coin variants can be configured in this config. These coins can then be used
+#  to define drops with different chances, in drops.yml.
 
 # Default settings for a coin when the value has not been set. These describe the
 #  characteristics of the coin as an item stack. It is possible to add and override any of
@@ -34,7 +34,7 @@ default:
   meta:
     # Add an enchanted effect to the coin.
     enchanted: false
-    # Add a glow effect to the item when it is on the ground. This allows the coin to be
+    # Add a glow effect to the coin when it is on the ground. This allows the coin to be
     #  seen through blocks. Use a named text color, i.e. 'green', 'light_purple', etc.
     glow-color: 'none'
     # Show a hologram above the coin when it is dropped on the ground.
@@ -48,7 +48,7 @@ default:
   behavior:
     # Set coins of the same value to merge when on the ground.
     item-merge: false
-    # Prevent hoppers from picking up dropped coins.
+    # Let hoppers pick up dropped coins.
     hopper-pickup: false
   deposit:
     # Sound to play when the coin is deposited. Sound types can be found at the
@@ -70,7 +70,7 @@ coins:
       plural: '<#F9CE64>Coins of Gold'
     meta:
       enchanted: true
-  'gold_coin':
+  'gold_coin': # a different coin with a different identifier
     item: 'minecraft:gold_nugget'
     name:
       singular: '<#F9CE64>Coin of Gold'

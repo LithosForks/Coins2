@@ -70,7 +70,7 @@ public final class DropsConfig extends FileConfig<DefinedDrop> {
             if (eventType.isEmpty()) {
                 addWarn("""
                     Cannot register drop '%s' because '%s' is an unknown event type. Supported types are: %s"""
-                    .formatted(definedEvent, name, coins.getEventTypeService().getEventTypeNames())
+                    .formatted(name, definedEvent, coins.getEventTypeService().getEventTypeNames())
                 );
                 continue;
             }
@@ -85,6 +85,7 @@ public final class DropsConfig extends FileConfig<DefinedDrop> {
             // create a DefinedCoinDrop from the "coins" section
             ConfigurationSection coinsSection = section.getConfigurationSection("coins");
             if (coinsSection == null) {
+                addWarn("Cannot register drop '%s' because there are no coins attached to drop.".formatted(definedEvent));
                 continue;
             }
 

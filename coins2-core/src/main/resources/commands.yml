@@ -7,16 +7,17 @@
 # ░░███     ███░███ ░███ ░███  ░███ ░███  ░░░░███    ███      █ #
 #  ░░█████████ ░░██████  █████ ████ █████ ██████    ░██████████ #
 #   ░░░░░░░░░   ░░░░░░  ░░░░░░ ░░░ ░░░░░░ ░░░░░     ░░░░░░░░░░  #
-# --- by JustEli --- https://plugin.coins.community/discord --- #
+# ----- by JustEli ---- https://plugin.coins.community/v2 ----- #
 
-# Commands of the plugin can be customized down here. There is currently only one command
-#  that can be configured.
+# Commands of the plugin can be customized here. Currently only one command can be
+#  configured.
 commands:
   # Identifier of the logic to implement.
   'coins':
     # Enable or disable this specific command.
     enabled: true
-    # Command labels to set for this command, so that it works using /coins or /coin.
+    # Command labels to set for this command. Anything after the first label will be
+    #  aliases. When set like this, the command will be accessible with /coins and /coin.
     labels: ['coins', 'coin']
-    # Permission that is required to run and use this command.
+    # Permission that is required to use this command.
     permission: 'coins.command.coins'

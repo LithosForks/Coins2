@@ -27,7 +27,8 @@ public final class DefinedCurrency {
         this.identifier = identifier.toLowerCase();
         this.economyHook = economyHook;
         this.decimals = decimals;
-        this.decimalFormat = new DecimalFormat("#,##0." + "0".repeat(decimals));
+        String decimalSuffix = decimals <= 0? "#" : "0".repeat(decimals);
+        this.decimalFormat = new DecimalFormat("#,##0." + decimalSuffix);
         this.singularName = singularName;
         this.pluralName = pluralName;
         String formatWithSymbol = format.replace("{symbol}", symbol);

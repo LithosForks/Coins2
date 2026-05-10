@@ -48,8 +48,8 @@ public final class DefinedCoinDrop {
             if (min < 0 || max < 0) {
                 List<Double> values = section.getDoubleList("value");
                 if (values.size() == 2) {
-                    min = values.get(0);
-                    max = values.get(1);
+                    min = Math.abs(values.get(0));
+                    max = Math.abs(values.get(1));
                 }
                 else {
                     min = 1;
@@ -57,6 +57,7 @@ public final class DefinedCoinDrop {
                 }
             }
 
+            // flip if max is lower than min
             if (min > max) {
                 double minimum = min;
                 min = max;

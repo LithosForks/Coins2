@@ -59,7 +59,10 @@ public final class CurrenciesConfig extends FileConfig<DefinedCurrency> {
 
             Optional<EconomyHook> economy = coins.getEconomyService().getEconomy(economyName);
             if (economy.isEmpty()) {
-                addWarn("Cannot register currency '%s' because economy '%s' is not supported.".formatted(id, economyName));
+                addWarn("""
+                    Cannot register currency '%s' because economy '%s' is not properly installed, or is not supported."""
+                    .formatted(id, economyName)
+                );
                 continue;
             }
 
@@ -76,6 +79,13 @@ public final class CurrenciesConfig extends FileConfig<DefinedCurrency> {
             String depositMessage = section.getString("deposit.message", defaultDepositMessage);
             String depositPosition = section.getString("deposit.position", defaultDepositPosition);
             MessagePosition position = Util.getEnum(MessagePosition.class, depositPosition);
+            if (position == null) {
+                position = MessagePosition.ACTIONBAR;
+                addWarn("""
+                    Cannot set deposit message position for currency '%s' because '%s' is invalid."""
+                    .formatted(id, depositPosition)
+                );
+            }
 
             DefinedCurrency definedCurrency = new DefinedCurrency(
                 id, economy.get(), decimals, symbol, singularName, pluralName, format, depositMessage, position
@@ -88,5 +98,9 @@ public final class CurrenciesConfig extends FileConfig<DefinedCurrency> {
         }
 
         putDefinedItems(configured, "currency", "currencies");
+
+        if (configured.isEmpty()) {
+            addWarn("No currencies have been registered. This plugin needs at least one currency to function.");
+        }
     }
 }

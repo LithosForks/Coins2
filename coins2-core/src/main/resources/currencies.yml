@@ -7,12 +7,12 @@
 # ░░███     ███░███ ░███ ░███  ░███ ░███  ░░░░███    ███      █ #
 #  ░░█████████ ░░██████  █████ ████ █████ ██████    ░██████████ #
 #   ░░░░░░░░░   ░░░░░░  ░░░░░░ ░░░ ░░░░░░ ░░░░░     ░░░░░░░░░░  #
-# --- by JustEli --- https://plugin.coins.community/discord --- #
+# ----- by JustEli ---- https://plugin.coins.community/v2 ----- #
 
 # Default settings when a value has not been set for a specific currency.
 default:
   # Displayed format of the currency. Supports coloring in minimessage format. The default
-  #  value renders as '1.23¢' in specified color #6DD47E, when decimals is set to 2. The
+  #  value renders as '1.23¢' when decimals is set to 2 (in specified color #6DD47E). The
   #  placeholder {amount} will be replaced by the value, and {symbol} will be replaced by
   #  the currency symbol configured down this config.
   format: '<#6DD47E>{amount}{symbol}'

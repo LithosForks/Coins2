@@ -53,8 +53,19 @@ public final class ConfigService {
 
         mainConfig.parseAndReload();
         currenciesConfig.parseAndReload();
-        coinsConfig.parseAndReload();
-        dropsConfig.parseAndReload();
+
+        if (currenciesConfig.getDefinedItems().isEmpty()) {
+            coins.getLogger().severe("""
+                No currencies registered: Coin variants and drops cannot be registered either, because there is no \
+                currency to depend on. Please install an appropriate economy for this plugin to register a currency."""
+            );
+        }
+        else {
+            // can only define coins and drops if there's at least 1 currency
+            coinsConfig.parseAndReload();
+            dropsConfig.parseAndReload();
+        }
+
         commandsConfig.parseAndReload();
         languageParser.reloadLanguage();
 

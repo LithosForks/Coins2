@@ -18,7 +18,7 @@ public final class PickupItemRegistrar implements Listener {
     public PickupItemRegistrar(CoinsCore coins) {
         this.coins = coins;
         coins.parseEventHandlers(this);
-        coins.log(Level.WARNING, "Use Paper server software to let players with a full inventory pick up coins.");
+        coins.log(Level.INFO, "Use Paper server software to let players with a full inventory pick up coins.");
     }
 
     @EventHandler(ignoreCancelled = true)

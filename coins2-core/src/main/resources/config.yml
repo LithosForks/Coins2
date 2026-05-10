@@ -7,13 +7,16 @@
 # ░░███     ███░███ ░███ ░███  ░███ ░███  ░░░░███    ███      █ #
 #  ░░█████████ ░░██████  █████ ████ █████ ██████    ░██████████ #
 #   ░░░░░░░░░   ░░░░░░  ░░░░░░ ░░░ ░░░░░░ ░░░░░     ░░░░░░░░░░  #
-# --- by JustEli --- https://plugin.coins.community/discord --- #
+# ----- by JustEli ---- https://plugin.coins.community/v2 ----- #
 
 # Defining and configuring the following parts can be done in a different config:
-#  - currencies.yml -> Defined currencies
-#  - coins.yml      -> Different coin variants
-#  - drops.yml      -> Events to drop coins
-#  - commands.yml   -> Customized commands
+#  - currencies.yml -> Installing currencies
+#  - coins.yml      -> Defining different coin variants
+#  - drops.yml      -> Drop coins for different events
+#  - commands.yml   -> Customizing commands
+
+# Join the Discord server for support:  https://plugin.coins.community/discord
+# More information can be found at:     https://plugin.coins.community/v2
 
 # Language to use for all messages of the plugin. All available languages can be found in
 #  the folder 'locale' of the plugin folder. Or create your own in the format 'xx-YY'.

@@ -7,7 +7,7 @@
 # ░░███     ███░███ ░███ ░███  ░███ ░███  ░░░░███    ███      █ #
 #  ░░█████████ ░░██████  █████ ████ █████ ██████    ░██████████ #
 #   ░░░░░░░░░   ░░░░░░  ░░░░░░ ░░░ ░░░░░░ ░░░░░     ░░░░░░░░░░  #
-# --- by JustEli --- https://plugin.coins.community/discord --- #
+# ----- by JustEli ---- https://plugin.coins.community/v2 ----- #
 
 # Different drop types can be configured in this config. These define when coins should be
 #  dropped. There are predefined event types for this, including the possibility to filter
@@ -17,7 +17,7 @@
 #  supports a set of filters. After everything has been filtered, there's a section that
 #  defines what coins should be dropped, and what their chances are to be dropped. Note
 #  that this config is very dynamic! You can simply remove or add your own drop types.
-# More info: https://github.com/justEli/Coins2/wiki/Defining-drop-filters
+# More info: https://plugin.coins.community/v2/drops/event-filters
 
 # Default settings for a drop type when the value has not been set. It is only applied to
 #  those drops where the event type supports it.
@@ -71,7 +71,7 @@ drops:
           - 'minecraft:nether_gold_ore'
     coins:
       # There is a 5% chance to drop an enchanted gold coin, 70% chance to drop a gold
-      #  coin, and 25% chance to drop nothing, as that is the remaining chance.
+      #  coin, and 25% chance to drop nothing (as that is the remaining chance).
       'enchanted_gold_coin':
         value: [20, 30] # random value between 20 and 30
         chance: 0.05 # 5% chance
@@ -79,8 +79,8 @@ drops:
         value: [12, 20] # random value between 12 and 20
         chance: 0.70 # 70% chance
   'common_ore_break':
-    # Another drop type is configured here, but then for less valuable ores, but using
-    #  the same event type as "valueable_ore_break".
+    # Another drop type is configured here, but then for less valuable ores, using the
+    #  same event type as "valueable_ore_break".
     event: 'block_break'
     filters:
       initiator:
@@ -148,15 +148,15 @@ drops:
     filters:
       initiator:
         # Players are the only allowed initiator for this drop type. Villagers can also
-        #  be the initiator; see the drop type below this one.
+        #  be an initiator; see the drop type below this one.
         type: ['minecraft:player']
       location:
         # Set the maximum amount of coin drops per block location in a specific time. This
         #  can be useful to prevent spamming of growing crops with bone meal, breaking and
         #  repeat, using some sort of autoclickers.
         cooldown:
-          cap-amount: 1 # allow once per
-          duration: '6h' # 6 hours
+          cap-amount: 1 # allow once per 6 hours at a block location
+          duration: '6h'
     coins:
       'bronze_coin':
         value: [1, 5]
@@ -215,7 +215,7 @@ drops:
         #  can be useful to prevent overuse of grinders.
         cooldown:
           cap-amount: 1 # allow once per
-          duration: '2h' # 2 hours
+          duration: '2h' # 2 hours at a block location
     coins:
       'enchanted_gold_coin':
         value: [20, 30]
