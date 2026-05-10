@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
  * @since April 15, 2026
  */
 public record ReleaseVersion(String tag, boolean preRelease, String name, String date) {
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMM. d, uuuu");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMMM d, uuuu");
 
     public ReleaseVersion(String tag, boolean preRelease, String name, String date) {
         this.tag = tag;

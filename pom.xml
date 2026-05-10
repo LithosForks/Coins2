@@ -9,6 +9,10 @@
     <version>${revision}</version>
     <packaging>pom</packaging>
 
+    <distributionManagement>
+        <downloadUrl>https://plugin.coins.community/</downloadUrl>
+    </distributionManagement>
+
     <modules>
         <module>Coins</module>
         <module>coins2-core</module>

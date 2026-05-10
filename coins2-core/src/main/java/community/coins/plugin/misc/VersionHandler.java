@@ -33,21 +33,12 @@ public final class VersionHandler {
             return;
         }
 
-        var pluginVersion = coins.getAttributes().getVersion();
+        String pluginVersion = coins.getAttributes().getVersion();
         if (!pluginVersion.equals(latestVersion.tag()) && !latestVersion.preRelease()) {
             coins.log(Level.WARNING, CoinsCore.LINE);
-            coins.log(Level.WARNING, """
-                Detected an outdated version of %s (%s is installed).
-                The latest version is %s, released on %s.
-                Download: %s"""
-                .formatted(
-                    coins.getAttributes().getName(),
-                    pluginVersion,
-                    latestVersion.tag(),
-                    latestVersion.date(),
-                    coins.getAttributes().getUrl()
-                )
-            );
+            coins.log(Level.WARNING, " Detected an outdated version of Coins (%s is installed).".formatted(pluginVersion));
+            coins.log(Level.WARNING, " The latest version is %s, released on %s.".formatted(latestVersion.tag(), latestVersion.date()));
+            coins.log(Level.WARNING, " Download: %s".formatted(coins.getAttributes().getUrl()));
             coins.log(Level.WARNING, CoinsCore.LINE);
         }
     }

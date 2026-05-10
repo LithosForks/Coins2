@@ -2,6 +2,8 @@ name: '${project.name}'
 main: '${project.groupId}.${plugin.main}'
 version: '${project.version}'
 api-version: '${plugin.api-version}'
+website: '${project.distributionManagement.downloadUrl}'
+author: 'JustEli'
 libraries:
   - 'net.kyori:adventure-platform-bukkit:${versions.adventure-platform-bukkit}'
   - 'net.kyori:adventure-text-minimessage:${versions.adventure}'
