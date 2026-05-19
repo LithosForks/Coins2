@@ -3,6 +3,9 @@ package community.coins.plugin.folialib;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Eli
@@ -29,6 +32,33 @@ public final class FoliaScheduler {
         }
         else {
             plugin.getServer().getScheduler().runTaskLater(plugin, runnable, delayTicks);
+        }
+    }
+
+    public void runLocationTaskRepeated(Location location, long amount, long period, Runnable runnable) {
+        if (PlatformUtil.isFolia()) {
+            AtomicInteger ticks = new AtomicInteger();
+            plugin.getServer().getRegionScheduler().runAtFixedRate(plugin, location, (task) -> {
+                runnable.run();
+
+                if (ticks.addAndGet(1) >= amount) {
+                    task.cancel();
+                }
+            }, 1, period);
+        }
+        else {
+            new BukkitRunnable() {
+                private final AtomicInteger ticks = new AtomicInteger();
+
+                @Override
+                public void run() {
+                    runnable.run();
+
+                    if (ticks.addAndGet(1) >= amount) {
+                        this.cancel();
+                    }
+                }
+            }.runTaskTimer(plugin, 0, period);
         }
     }
 }

@@ -28,6 +28,8 @@ public final class CoinsCommand extends CoinsCommandLogic {
         this.coins = coins;
     }
 
+    // todo implement /coins drop
+
     @Override
     public void register(List<String> labels, String permission) {
         if (labels.isEmpty()) {

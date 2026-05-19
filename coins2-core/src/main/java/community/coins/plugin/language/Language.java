@@ -31,6 +31,18 @@ public final class Language {
     @LanguageEntry("command.full_inventory")
     public static FormatEntry FULL_INVENTORY = new FormatEntry("<error>Cannot perform this action because your inventory is full.");
 
+    @LanguageEntry("command.coins.drop.dropping")
+    public static FillEntry DROP_DROPPING = new FillEntry("Dropping {amount} coins in a radius of {radius} around {target}.");
+
+    @LanguageEntry("command.invalid_range")
+    public static FillEntry COMMAND_INVALID_RANGE = new FillEntry("<error>Given input for '{type}' must be between {min} and {max}.");
+
     @LanguageEntry("word.value")
     public static WordEntry WORD_VALUE = new WordEntry("value");
+
+    @LanguageEntry("word.radius")
+    public static WordEntry WORD_RADIUS = new WordEntry("radius");
+
+    @LanguageEntry("word.amount")
+    public static WordEntry WORD_AMOUNT = new WordEntry("amount");
 }
