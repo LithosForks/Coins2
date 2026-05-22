@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -26,6 +27,10 @@ public abstract class FileConfig<T> extends BasicConfig {
 
     public Collection<T> getDefinedItems() {
         return defined.values();
+    }
+
+    public Set<String> getDefinedKeys() {
+        return defined.keySet();
     }
 
     protected void putDefinedItems(Map<String, T> values, String typeSingular, String typePlural) {

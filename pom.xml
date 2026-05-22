@@ -24,7 +24,7 @@
     <properties>
         <!-- plugin details -->
         <project.name>Coins</project.name>
-        <revision>2.0</revision>
+        <revision>2.1</revision>
 
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
@@ -122,10 +122,21 @@
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <relocations>
                         <relocation>
-                            <pattern>org.bstats</pattern>
-                            <shadedPattern>${project.groupId}</shadedPattern>
+                            <pattern>org.bstats</pattern> <!-- bstats-bukkit -->
+                            <shadedPattern>community.coins</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.zaxxer</pattern> <!-- HikariCP -->
+                            <shadedPattern>community.coins</shadedPattern>
                         </relocation>
                     </relocations>
+                    <artifactSet>
+                        <excludes>
+                            <exclude>org.intellij:*</exclude>
+                            <exclude>org.jetbrains:*</exclude>
+                            <exclude>org.slf4j:*</exclude> <!-- let server handle logging -->
+                        </excludes>
+                    </artifactSet>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>

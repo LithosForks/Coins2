@@ -2,7 +2,7 @@ package community.coins.plugin.misc;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.config.ConfigYml;
-import community.coins.plugin.config.CurrenciesConfig;
+import community.coins.plugin.economy.hook.VaultEconomyHook;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bstats.charts.SingleLineChart;
@@ -19,13 +19,13 @@ public final class MetricsHandler {
 
         // total configured items
         metrics.addCustomChart(new SimplePie("totalCoinsEnabled", () ->
-            String.valueOf(coins.getConfigService().getCoinsConfig().getDefinedItems().size()))
+            String.valueOf(coins.getConfigService().getCoinsConfig().getDefinedKeys().size()))
         );
         metrics.addCustomChart(new SimplePie("totalDropsEnabled", () ->
-            String.valueOf(coins.getConfigService().getDropsConfig().getDefinedItems().size()))
+            String.valueOf(coins.getConfigService().getDropsConfig().getDefinedKeys().size()))
         );
         metrics.addCustomChart(new SimplePie("totalCurrenciesEnabled", () ->
-            String.valueOf(coins.getConfigService().getCurrenciesConfig().getDefinedItems().size()))
+            String.valueOf(coins.getConfigService().getCurrenciesConfig().getDefinedKeys().size()))
         );
 
         // config.yml
@@ -33,7 +33,7 @@ public final class MetricsHandler {
         metrics.addCustomChart(new SimplePie("notifyOnUpdate", () -> Boolean.toString(ConfigYml.NOTIFY_ON_UPDATE)));
 
         // currencies.yml
-        metrics.addCustomChart(new SimplePie("usingVaultCurrency", () -> Boolean.toString(CurrenciesConfig.USING_VAULT_CURRENCY)));
+        metrics.addCustomChart(new SimplePie("usingEconomyVault", () -> Boolean.toString(VaultEconomyHook.USED)));
 
         // in-game statistics
         metrics.addCustomChart(new SingleLineChart("totalCoinsCreated", () -> totalCoinsCreated.getAndSet(0)));

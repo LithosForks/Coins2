@@ -13,11 +13,16 @@
     <artifactId>coins2-core</artifactId>
 
     <dependencies>
-        <!-- compile bStats into the jar -->
-        <dependency>
+        <dependency> <!-- compile bStats into the jar -->
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
             <version>3.2.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency> <!-- SQL wrapper -->
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>7.0.2</version>
             <scope>compile</scope>
         </dependency>
 
@@ -63,22 +68,4 @@
             <artifactId>adventure-text-serializer-plain</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>${version.maven-shade-plugin}</version>
-                <configuration>
-                    <relocations>
-                        <relocation>
-                            <pattern>org.bstats</pattern>
-                            <shadedPattern>${project.groupId}</shadedPattern>
-                        </relocation>
-                    </relocations>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

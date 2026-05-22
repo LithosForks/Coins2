@@ -13,11 +13,17 @@
 #  configured.
 commands:
   # Identifier of the logic to implement.
-  'coins':
+  'mintage':
     # Enable or disable this specific command.
     enabled: true
     # Command labels to set for this command. Anything after the first label will be
-    #  aliases. When set like this, the command will be accessible with /coins and /coin.
-    labels: ['coins', 'coin']
+    #  aliases. By default, the command will be accessible with /mintage and /mint.
+    labels: ['mintage', 'mint']
     # Permission that is required to use this command.
-    permission: 'coins.command.coins'
+    permission: 'coins.command.mintage'
+  'balance':
+    # Command /balance is disabled by default, because it is usually handled by another
+    #  plugin by default.
+    enabled: false
+    labels: ['balance', 'money', 'coins']
+    permission: 'coins.command.balance'

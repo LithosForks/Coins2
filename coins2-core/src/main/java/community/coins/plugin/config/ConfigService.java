@@ -54,7 +54,7 @@ public final class ConfigService {
         mainConfig.parseAndReload();
         currenciesConfig.parseAndReload();
 
-        if (currenciesConfig.getDefinedItems().isEmpty()) {
+        if (currenciesConfig.getDefinedKeys().isEmpty()) {
             coins.getLogger().severe("""
                 No currencies registered: Coin variants and drops cannot be registered either, because there is no \
                 currency to depend on. Please install an appropriate economy for this plugin to register a currency."""

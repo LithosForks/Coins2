@@ -1,0 +1,31 @@
+# docker compose -p database-testing up --build -d
+# docker exec -it mariadb mariadb -u root -pp4ssw0rd coins
+
+services:
+  mariadb:
+    container_name: mariadb
+    image: mariadb:10.6 # old version just for testing
+    ports:
+      - '127.0.0.1:3306:3306'
+    environment:
+      - MYSQL_ROOT_PASSWORD=p4ssw0rd
+      - MYSQL_DATABASE=coins
+    deploy:
+      resources:
+        limits:
+          memory: 500M
+          cpus: 0.50
+
+  mysql:
+    container_name: mysql
+    image: mysql:8.0 # old version just for testing
+    ports:
+      - '127.0.0.1:3307:3306'
+    environment:
+      - MYSQL_ROOT_PASSWORD=p4ssw0rd
+      - MYSQL_DATABASE=coins
+    deploy:
+      resources:
+        limits:
+          memory: 500M
+          cpus: 0.50

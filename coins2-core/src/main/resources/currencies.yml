@@ -23,14 +23,35 @@ default:
     message: '<#148C30>↑ <#6DD47E>{format}'
     position: 'actionbar'
 
+# Settings when storage is used. Balances are not handled by Coins by default. Only if you
+#  enable integration (per currency), it will use these settings.
+storage:
+  # This connection will be used when using 'sql' as storage for a currency.
+  sql:
+    enabled: false # don't forget to enable if used
+    url: 'jdbc:mysql://localhost:3306/coins' # 'coins' here is the database name
+    username: 'root'
+    password: 'p4ssw0rd'
+
 currencies:
   # The identifier of the currency. This will be applied to the value of coins. Changing
   #  this identifier makes it impossible to pick up already existing coins with this
-  #  currency.
-  'vault_balance':
+  #  currency. Do not change this identifier when there are coins in circulation! This
+  #  identifier is also used for storaging balances, if enabled (so don't change it).
+  'vault':
     # The economy, or really the plugin to use. This economy name is case-sensitive. Only
     #  Vault is currently supported. Some plugins allow for multiple currencies.
     economy: 'Vault'
+    # Whether this plugin should manage and store the currency. This plugin will then take
+    #  care of its storage. The storage can either be to file, or SQL. When using 'file',
+    #  balances are stored in Coins/storage/balances/{currency_id}/{player_uuid}.yml. With
+    #  SQL, additional settings (host, port, etc.) need to be configured at 'storage' at
+    #  the top of the config.
+    integration:
+      # Setting from 'true' to 'false' requires a server restart, to give other plugins a
+      #  chance to integrate the plugin.
+      enabled: false
+      storage: 'file' # or 'sql'
     # Amount of decimal points to render values for this currency. Decimals set to 2 will
     #  render as 1.23.
     decimals: 2

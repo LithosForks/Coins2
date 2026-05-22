@@ -42,6 +42,7 @@ public final class CoinDepositHandler implements Listener {
             return; // do nothing because it's not a coin
         }
 
+        // todo a different handling for withdrawn coins as this will always deposit when clicked in inventory
         if (coins.getEconomyService().depositCoin(player, event.getCurrentItem())) {
             // successfully deposited
             event.setCancelled(true);

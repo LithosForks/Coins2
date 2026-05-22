@@ -4,12 +4,12 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import community.coins.plugin.command.CoinsCommandLogic;
-import community.coins.plugin.coin.DefinedCoin;
+import community.coins.plugin.command.CommandLogic;
+import community.coins.plugin.command.MintageCommandLogic;
 import community.coins.plugin.paper.CoinsPaper;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
-import io.papermc.paper.command.brigadier.argument.resolvers.FinePositionResolver;
+import io.papermc.paper.command.brigadier.argument.resolvers.BlockPositionResolver;
 import io.papermc.paper.math.FinePosition;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -21,9 +21,9 @@ import java.util.List;
  * @author Eli
  * @since May 07, 2026
  */
-public final class CoinsCommand extends CoinsCommandLogic {
+public final class MintageCommand extends MintageCommandLogic {
     private final CoinsPaper coins;
-    public CoinsCommand(CoinsPaper coins) {
+    public MintageCommand(CoinsPaper coins) {
         super(coins, coins.getCommandService());
         this.coins = coins;
     }
@@ -48,23 +48,36 @@ public final class CoinsCommand extends CoinsCommandLogic {
                     })
                 )
                 .then(
-                    Commands.literal("give")
+                    Commands.literal("create")
                     .then(
                         Commands.argument("coin_id", StringArgumentType.string())
                         .executes(context -> {
                             giveCoin(
                                 context.getSource().getSender(),
-                                context.getArgument("coin_id", String.class)
+                                context.getArgument("coin_id", String.class),
+                                1
                             );
                             return Command.SINGLE_SUCCESS;
                         })
                         .suggests((_, builder) -> {
-                            for (DefinedCoin coin : coins.getConfigService().getCoinsConfig().getDefinedItems()) {
-                                builder.suggest(coin.getId());
-                            }
+                            CommandLogic.suggestStartsWith(
+                                coins.getConfigService().getCoinsConfig().getDefinedKeys(),
+                                builder.getRemainingLowerCase(), builder::suggest
+                            );
 
                             return builder.buildFuture();
                         })
+                        .then(
+                            Commands.argument("amount", IntegerArgumentType.integer())
+                            .executes(context -> {
+                                giveCoin(
+                                    context.getSource().getSender(),
+                                    context.getArgument("coin_id", String.class),
+                                    context.getArgument("amount", int.class)
+                                );
+                                return Command.SINGLE_SUCCESS;
+                            })
+                        )
                     )
                 )
                 .then(
@@ -85,9 +98,10 @@ public final class CoinsCommand extends CoinsCommandLogic {
                                 })
                             )
                             .suggests((_, builder) -> {
-                                for (String currency : coins.getEconomyService().getCurrencyIdentifiers()) {
-                                    builder.suggest(currency);
-                                }
+                                CommandLogic.suggestStartsWith(
+                                    coins.getEconomyService().getCurrencyIdentifiers(),
+                                    builder.getRemainingLowerCase(), builder::suggest
+                                );
 
                                 return builder.buildFuture();
                             })
@@ -101,9 +115,10 @@ public final class CoinsCommand extends CoinsCommandLogic {
                         .then(
                             Commands.argument("coin_id", StringArgumentType.word())
                             .suggests((_, builder) -> {
-                                for (DefinedCoin coin : coins.getConfigService().getCoinsConfig().getDefinedItems()) {
-                                    builder.suggest(coin.getId());
-                                }
+                                CommandLogic.suggestStartsWith(
+                                    coins.getConfigService().getCoinsConfig().getDefinedKeys(),
+                                    builder.getRemainingLowerCase(), builder::suggest
+                                );
 
                                 return builder.buildFuture();
                             })
@@ -118,10 +133,13 @@ public final class CoinsCommand extends CoinsCommandLogic {
                                                 ? player.getWorld()
                                                 : coins.getServer().getRespawnWorld();
 
-                                            FinePositionResolver resolver = context.getArgument("location", FinePositionResolver.class);
-                                            FinePosition pos = resolver.resolve(context.getSource());
+                                            BlockPositionResolver resolver =
+                                                context.getArgument("location", BlockPositionResolver.class);
 
-                                            Location location = new Location(world, pos.x(), pos.y(), pos.z());
+                                            //noinspection UnstableApiUsage
+                                            FinePosition pos = resolver.resolve(context.getSource()).offset(.5, .5, .5);
+                                            //noinspection UnstableApiUsage
+                                            Location location = pos.toLocation(world);
 
                                             dropCoins(
                                                 context.getSource().getSender(),

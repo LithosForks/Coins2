@@ -22,9 +22,9 @@ import java.util.SplittableRandom;
  * @author Eli
  * @since May 07, 2026
  */
-public abstract class CoinsCommandLogic extends CommandLogic {
-    public CoinsCommandLogic(CoinsCore coins, CommandService service) {
-        super(coins, service, "coins");
+public abstract class MintageCommandLogic extends CommandLogic {
+    public MintageCommandLogic(CoinsCore coins, CommandService service) {
+        super(coins, service, "mintage");
     }
 
     @Override
@@ -37,7 +37,7 @@ public abstract class CoinsCommandLogic extends CommandLogic {
     private static final EntryReplacement FILL_DURATION = new EntryReplacement("duration");
     private static final EntryReplacement FILL_ID = new EntryReplacement("identifier");
     private static final EntryReplacement FILL_FORMAT = new EntryReplacement("format");
-    private static final EntryReplacement FILL_TYPE = new EntryReplacement("type");
+    protected static final EntryReplacement FILL_TYPE = new EntryReplacement("type");
     private static final EntryReplacement.Filled FILL_MIN_1 = new EntryReplacement("min").filled(1);
     private static final EntryReplacement FILL_MAX = new EntryReplacement("max");
     private static final EntryReplacement FILL_AMOUNT = new EntryReplacement("amount");
@@ -52,7 +52,7 @@ public abstract class CoinsCommandLogic extends CommandLogic {
         coins.sendMessage(sender, Language.RELOAD_SUCCESS.with(FILL_DURATION.filled(duration)));
     }
 
-    public void giveCoin(CommandSender sender, String coinIdentifier) {
+    public void giveCoin(CommandSender sender, String coinIdentifier, int amount) {
         if (!(sender instanceof Player player)) {
             coins.sendMessage(sender,  Language.PLAYERS_ONLY);
             return;
@@ -60,7 +60,7 @@ public abstract class CoinsCommandLogic extends CommandLogic {
 
         Optional<DefinedCoin> coin = coins.getConfigService().getCoinsConfig().getDefinedItem(coinIdentifier);
         if (coin.isEmpty()) {
-            coins.sendMessage(sender,  Language.COIN_NOT_FOUND.with(FILL_ID.filled(coinIdentifier)));
+            coins.sendMessage(sender, Language.COIN_NOT_FOUND.with(FILL_ID.filled(coinIdentifier)));
             return;
         }
 
@@ -69,7 +69,17 @@ public abstract class CoinsCommandLogic extends CommandLogic {
             return;
         }
 
-        player.getInventory().addItem(coin.get().getItemStackClone());
+        if (amount < 1 || amount > 64) {
+            coins.sendMessage(sender, Language.COMMAND_INVALID_RANGE.with(
+                FILL_TYPE.filled(Language.WORD_AMOUNT), FILL_MIN_1, FILL_MAX.filled(64)
+            ));
+            return;
+        }
+
+        ItemStack item = coin.get().getItemStackClone();
+        item.setAmount(amount);
+
+        player.getInventory().addItem(item);
         coins.sendMessage(sender, Language.GIVE_SUCCESS.with(FILL_ID.filled(coinIdentifier)));
     }
 
@@ -96,10 +106,7 @@ public abstract class CoinsCommandLogic extends CommandLogic {
         coins.getCoinMeta().setCoinValue(meta, Util.toRoundedMoneyDecimals(value, currency.get().getDecimals()));
         stack.setItemMeta(meta);
 
-        coins.sendMessage(
-            sender,
-            Language.SET_VALUE_SUCCESS.with(FILL_FORMAT.filled(currency.get().getFormatMessage(value)))
-        );
+        coins.sendMessage(sender, Language.SET_VALUE_SUCCESS.with(FILL_FORMAT.filled(currency.get().getFormatMessage(value))));
     }
 
     @NullMarked

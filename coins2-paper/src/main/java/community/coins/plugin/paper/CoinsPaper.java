@@ -5,7 +5,8 @@ import community.coins.plugin.CoinsCore;
 import community.coins.plugin.api.ComponentApi;
 import community.coins.plugin.api.ItemParseApi;
 import community.coins.plugin.api.PluginAttributes;
-import community.coins.plugin.paper.command.CoinsCommand;
+import community.coins.plugin.paper.command.BalanceCommand;
+import community.coins.plugin.paper.command.MintageCommand;
 import community.coins.plugin.paper.implement.ComponentApiImpl;
 import community.coins.plugin.paper.implement.ItemParseApiImpl;
 import community.coins.plugin.paper.implement.PluginAttributesImpl;
@@ -39,7 +40,8 @@ public final class CoinsPaper extends CoinsCore {
 
     @Override
     public void loadBasicFunctionality() {
-        new CoinsCommand(this);
+        new BalanceCommand(this);
+        new MintageCommand(this);
     }
 
     @Override

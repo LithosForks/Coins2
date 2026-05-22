@@ -39,7 +39,7 @@ public final class CoinsConfig extends FileConfig<DefinedCoin> {
     public void parseAndReload() {
         var config = getOrCreateConfig();
 
-        String defaultCurrency = config.getString("default.currency", "vault_balance"); // default 'physical' when available
+        String defaultCurrency = config.getString("default.currency", "vault"); // default 'physical' when available
         Optional<ItemStack> defaultItem = getItemValue(config.getConfigurationSection("default"), null, "defined_coin");
         String defaultSingularName = config.getString("default.name.singular", "Coin");
         String defaultPluralName = config.getString("default.name.plural", "Coins");

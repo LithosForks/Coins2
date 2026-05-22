@@ -5,6 +5,8 @@ import community.coins.plugin.util.MessagePosition;
 import net.kyori.adventure.text.Component;
 
 import java.text.DecimalFormat;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * a defined currency within a plugin/economy.
@@ -22,9 +24,10 @@ public final class DefinedCurrency {
     private final Component formatMessage;
     private final Component depositMessage;
     private final MessagePosition depositPosition;
+    private final Action action = new Action();
 
-    public DefinedCurrency(String identifier, EconomyHook economyHook, int decimals, String symbol, String singularName, String pluralName, String format, String depositMessage, MessagePosition depositPosition) {
-        this.identifier = identifier.toLowerCase();
+    public DefinedCurrency(String id, EconomyHook economyHook, int decimals, String symbol, String singularName, String pluralName, String format, String depositMessage, MessagePosition depositPosition) {
+        this.identifier = id.toLowerCase();
         this.economyHook = economyHook;
         this.decimals = decimals;
         String decimalSuffix = decimals <= 0? "#" : "0".repeat(decimals);
@@ -41,7 +44,7 @@ public final class DefinedCurrency {
         return identifier;
     }
 
-    public EconomyHook getEconomyHook() {
+    public EconomyHook getHook() {
         return economyHook;
     }
 
@@ -75,5 +78,31 @@ public final class DefinedCurrency {
 
     public Component getFormatMessage(double amount) {
         return ComponentUtil.replaceAmount(formatMessage, formatAmount(amount));
+    }
+
+    public void submitTransaction(Consumer<CurrencyAction> transaction) {
+        transaction.accept(action);
+    }
+
+    private class Action implements CurrencyAction {
+        @Override
+        public double getBalance(UUID uuid) {
+            return economyHook.getBalance(uuid, identifier);
+        }
+
+        @Override
+        public boolean canAfford(UUID uuid, double amount) {
+            return economyHook.canAfford(uuid, identifier, amount);
+        }
+
+        @Override
+        public boolean deposit(UUID uuid, double amount) {
+            return economyHook.deposit(uuid, identifier, amount);
+        }
+
+        @Override
+        public boolean withdraw(UUID uuid, double amount) {
+            return economyHook.withdraw(uuid, identifier, amount);
+        }
     }
 }

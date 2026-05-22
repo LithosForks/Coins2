@@ -2,7 +2,9 @@ package community.coins.plugin.command;
 
 import community.coins.plugin.CoinsCore;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author Eli
@@ -25,4 +27,13 @@ public abstract class CommandLogic {
     public abstract void register(List<String> labels, String permission);
 
     public abstract String getDescription();
+
+    /// @param remaining should already be lowercase
+    public static void suggestStartsWith(Collection<? extends String> items, String remaining, Consumer<String> item) {
+        for (String name : items) {
+            if (name.toLowerCase().startsWith(remaining)) {
+                item.accept(name);
+            }
+        }
+    }
 }

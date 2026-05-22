@@ -1,46 +1,55 @@
 package community.coins.plugin.economy;
 
+import community.coins.plugin.CoinsCore;
+import community.coins.plugin.config.ConfigWarns;
+import community.coins.plugin.economy.storage.CurrencyBalanceStorage;
 import org.jspecify.annotations.NullMarked;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.UUID;
 
 /**
  * @author Eli
  * @since May 05, 2026
  */
 @NullMarked
-public abstract class EconomyHook implements EconomyAction {
-    private final String name;
-    public EconomyHook(EconomyService service, String name) {
+public abstract class EconomyHook {
+    protected final CoinsCore coins;
+    protected final EconomyService service;
+    protected final String name;
+
+    public EconomyHook(CoinsCore coins, EconomyService service, String name) {
+        this.coins = coins;
+        this.service = service;
         this.name = name; // not an identifier, but a case-sensitive (plugin) name
-
-        // register this currency to Coins' economy service
-        service.registerEconomy(this);
     }
 
-    private final Map<String, DefinedCurrency> currencies = new HashMap<>();
-
-    protected void addCurrency(DefinedCurrency currency) {
-        currencies.put(currency.getIdentifier(), currency);
-    }
-
-    protected Optional<DefinedCurrency> getCurrency(String currency) {
-        return Optional.ofNullable(currencies.get(currency.toLowerCase()));
-    }
-
-    protected int getAmountOfCurrencies() {
-        return currencies.size();
-    }
-
-    protected void clearCurrencies() {
-        currencies.clear();
-    }
-
-    public String getName() {
+    public String getPluginName() {
         return name;
     }
 
-    public abstract boolean isMultiCurrency();
+    protected boolean isPluginEnabled() {
+        return coins.getServer().getPluginManager().isPluginEnabled(name);
+    }
+
+    /// if it has support for more than one currency
+    public abstract boolean isMultiCurrencySupported();
+
+    /// if it has support for being integrated as economy provider
+    public abstract boolean isIntegrationSupported();
+
+    /// @return successfully registered
+    public abstract boolean registerIntegration(ConfigWarns.Named warns, DefinedCurrency currency, CurrencyBalanceStorage storage);
+
+    /// @return successfully registered
+    public abstract boolean registerCurrency(ConfigWarns.Named warns, DefinedCurrency currency);
+
+    public abstract void unregister();
+
+    public abstract double getBalance(UUID uuid, String currency);
+
+    public abstract boolean canAfford(UUID uuid, String currency, double amount);
+
+    public abstract boolean deposit(UUID uuid, String currency, double amount);
+
+    public abstract boolean withdraw(UUID uuid, String currency, double amount);
 }

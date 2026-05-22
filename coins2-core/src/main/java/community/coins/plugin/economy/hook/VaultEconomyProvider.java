@@ -1,0 +1,323 @@
+package community.coins.plugin.economy.hook;
+
+import community.coins.plugin.CoinsCore;
+import community.coins.plugin.economy.DefinedCurrency;
+import community.coins.plugin.economy.storage.CurrencyBalanceStorage;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
+import org.bukkit.OfflinePlayer;
+import org.jspecify.annotations.Nullable;
+
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * @author Eli
+ * @since May 19, 2026
+ */
+public final class VaultEconomyProvider implements Economy {
+    private final CoinsCore coins;
+    private final CurrencyBalanceStorage storage;
+    private final DefinedCurrency currency;
+
+    public VaultEconomyProvider(CoinsCore coins, CurrencyBalanceStorage storage, DefinedCurrency currency) {
+        this.coins = coins;
+        this.storage = storage;
+        this.currency = currency;
+    }
+
+    private static final EconomyResponse UNKNOWN_PLAYER =
+        new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Unknown player");
+
+    private static final EconomyResponse NOT_SUPPORTED =
+        new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Not supported");
+
+    private @Nullable UUID getUuid(@Nullable String username) {
+        if (username == null) {
+            return null;
+        }
+
+        var player = coins.getServer().getPlayerExact(username);
+        if (player != null) {
+            return player.getUniqueId();
+        }
+
+        // todo this should be avoided because of web requests
+        return coins.getServer().getOfflinePlayer(username).getUniqueId();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return coins.isEnabled();
+    }
+
+    @Override
+    public String getName() {
+        return currency.getSingularName();
+    }
+
+    @Override
+    public boolean hasBankSupport() {
+        return false;
+    }
+
+    @Override
+    public int fractionalDigits() {
+        return currency.getDecimals();
+    }
+
+    @Override
+    public String format(double amount) {
+        return currency.formatAmount(amount);
+    }
+
+    @Override
+    public String currencyNamePlural() {
+        return currency.getPluralName();
+    }
+
+    @Override
+    public String currencyNameSingular() {
+        return currency.getSingularName();
+    }
+
+    @Override
+    public boolean hasAccount(String playerName) {
+        UUID uuid = getUuid(playerName);
+        if (uuid == null) {
+            return false;
+        }
+
+        return storage.hasExistingBalance(uuid);
+    }
+
+    @Override
+    public boolean hasAccount(OfflinePlayer player) {
+        if (player == null) {
+            return false;
+        }
+
+        return storage.hasExistingBalance(player.getUniqueId());
+    }
+
+    @Override
+    public boolean hasAccount(String playerName, String worldName) {
+        return hasAccount(playerName);
+    }
+
+    @Override
+    public boolean hasAccount(OfflinePlayer player, String worldName) {
+        return hasAccount(player);
+    }
+
+    @Override
+    public double getBalance(String playerName) {
+        UUID uuid = getUuid(playerName);
+        if (uuid == null) {
+            return 0;
+        }
+
+        return storage.getCachedBalance(uuid);
+    }
+
+    @Override
+    public double getBalance(OfflinePlayer player) {
+        if (player == null) {
+            return 0;
+        }
+
+        return storage.getCachedBalance(player.getUniqueId());
+    }
+
+    @Override
+    public double getBalance(String playerName, String world) {
+        return getBalance(playerName);
+    }
+
+    @Override
+    public double getBalance(OfflinePlayer player, String world) {
+        return getBalance(player);
+    }
+
+    @Override
+    public boolean has(String playerName, double amount) {
+        UUID uuid = getUuid(playerName);
+        if (uuid == null) {
+            return false;
+        }
+
+        return amount >= 0 && storage.getCachedBalance(uuid) >= amount;
+    }
+
+    @Override
+    public boolean has(OfflinePlayer player, double amount) {
+        if (player == null) {
+            return false;
+        }
+
+        return amount >= 0 && storage.getCachedBalance(player.getUniqueId()) >= amount;
+    }
+
+    @Override
+    public boolean has(String playerName, String worldName, double amount) {
+        return has(playerName, amount);
+    }
+
+    @Override
+    public boolean has(OfflinePlayer player, String worldName, double amount) {
+        return has(player, amount);
+    }
+
+    @Override
+    public EconomyResponse withdrawPlayer(String playerName, double amount) {
+        UUID uuid = getUuid(playerName);
+        if (uuid == null) {
+            return UNKNOWN_PLAYER;
+        }
+
+        storage.withdraw(uuid, amount);
+        return new EconomyResponse(amount, storage.getCachedBalance(uuid), EconomyResponse.ResponseType.SUCCESS, null);
+    }
+
+    @Override
+    public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
+        if (player == null) {
+            return UNKNOWN_PLAYER;
+        }
+
+        storage.withdraw(player.getUniqueId(), amount);
+        return new EconomyResponse(amount, storage.getCachedBalance(player.getUniqueId()), EconomyResponse.ResponseType.SUCCESS, null);
+    }
+
+    @Override
+    public EconomyResponse withdrawPlayer(String playerName, String worldName, double amount) {
+        return withdrawPlayer(playerName, amount);
+    }
+
+    @Override
+    public EconomyResponse withdrawPlayer(OfflinePlayer player, String worldName, double amount) {
+        return withdrawPlayer(player, amount);
+    }
+
+    @Override
+    public EconomyResponse depositPlayer(String playerName, double amount) {
+        UUID uuid = getUuid(playerName);
+        if (uuid == null) {
+            return UNKNOWN_PLAYER;
+        }
+
+        storage.deposit(uuid, amount);
+        return new EconomyResponse(amount, storage.getCachedBalance(uuid), EconomyResponse.ResponseType.SUCCESS, null);
+    }
+
+    @Override
+    public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
+        if (player == null) {
+            return UNKNOWN_PLAYER;
+        }
+
+        storage.deposit(player.getUniqueId(), amount);
+        return new EconomyResponse(amount, storage.getCachedBalance(player.getUniqueId()), EconomyResponse.ResponseType.SUCCESS, null);
+    }
+
+    @Override
+    public EconomyResponse depositPlayer(String playerName, String worldName, double amount) {
+        return depositPlayer(playerName, amount);
+    }
+
+    @Override
+    public EconomyResponse depositPlayer(OfflinePlayer player, String worldName, double amount) {
+        return depositPlayer(player, amount);
+    }
+
+    @Override
+    public EconomyResponse createBank(String name, String player) {
+        return NOT_SUPPORTED;
+    }
+
+    @Override
+    public EconomyResponse createBank(String name, OfflinePlayer player) {
+        return NOT_SUPPORTED;
+    }
+
+    @Override
+    public EconomyResponse deleteBank(String name) {
+        return NOT_SUPPORTED;
+    }
+
+    @Override
+    public EconomyResponse bankBalance(String name) {
+        return NOT_SUPPORTED;
+    }
+
+    @Override
+    public EconomyResponse bankHas(String name, double amount) {
+        return NOT_SUPPORTED;
+    }
+
+    @Override
+    public EconomyResponse bankWithdraw(String name, double amount) {
+        return NOT_SUPPORTED;
+    }
+
+    @Override
+    public EconomyResponse bankDeposit(String name, double amount) {
+        return NOT_SUPPORTED;
+    }
+
+    @Override
+    public EconomyResponse isBankOwner(String name, String playerName) {
+        return NOT_SUPPORTED;
+    }
+
+    @Override
+    public EconomyResponse isBankOwner(String name, OfflinePlayer player) {
+        return NOT_SUPPORTED;
+    }
+
+    @Override
+    public EconomyResponse isBankMember(String name, String playerName) {
+        return NOT_SUPPORTED;
+    }
+
+    @Override
+    public EconomyResponse isBankMember(String name, OfflinePlayer player) {
+        return NOT_SUPPORTED;
+    }
+
+    @Override
+    public List<String> getBanks() {
+        return List.of();
+    }
+
+    @Override
+    public boolean createPlayerAccount(String playerName) {
+        UUID uuid = getUuid(playerName);
+        if (uuid == null) {
+            return false;
+        }
+
+        storage.createIfNotExists(uuid);
+        return true;
+    }
+
+    @Override
+    public boolean createPlayerAccount(OfflinePlayer player) {
+        if (player == null) {
+            return false;
+        }
+
+        storage.createIfNotExists(player.getUniqueId());
+        return true;
+    }
+
+    @Override
+    public boolean createPlayerAccount(String playerName, String worldName) {
+        return createPlayerAccount(playerName);
+    }
+
+    @Override
+    public boolean createPlayerAccount(OfflinePlayer player, String worldName) {
+        return createPlayerAccount(player);
+    }
+}

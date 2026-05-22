@@ -93,6 +93,15 @@ public final class Util {
         }
     }
 
+    public static OptionalInt parseInt(String number) {
+        try {
+            return OptionalInt.of(Integer.parseInt(number.replaceAll("[<>\\[\\]]", "")));
+        }
+        catch (NumberFormatException exception) {
+            return OptionalInt.empty();
+        }
+    }
+
     public static String toIdentifier(String value) {
         return value.toLowerCase().replaceAll("[^a-z0-9]+", " ").trim().replace(" ", "_");
     }

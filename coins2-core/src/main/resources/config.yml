@@ -14,6 +14,7 @@
 #  - coins.yml      -> Defining different coin variants
 #  - drops.yml      -> Drop coins for different events
 #  - commands.yml   -> Customizing commands
+# Changed configurations can be reloaded with '/mint reload', except for commands.
 
 # Join the Discord server for support:  https://plugin.coins.community/discord
 # More information can be found at:     https://plugin.coins.community/v2
