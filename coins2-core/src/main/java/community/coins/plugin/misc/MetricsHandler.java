@@ -2,7 +2,6 @@ package community.coins.plugin.misc;
 
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.config.ConfigYml;
-import community.coins.plugin.economy.hook.VaultEconomyHook;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bstats.charts.SingleLineChart;
@@ -14,6 +13,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since April 28, 2026
  */
 public final class MetricsHandler {
+    public static boolean USING_ECONOMY_VAULT = false;
+    public static boolean USING_STORAGE_INTEGRATION = false;
+    public static boolean USING_FILE_STORAGE = false;
+    public static boolean USING_SQL_STORAGE = false;
+
     public MetricsHandler(CoinsCore coins) {
         Metrics metrics = new Metrics(coins, 31200);
 
@@ -33,7 +37,10 @@ public final class MetricsHandler {
         metrics.addCustomChart(new SimplePie("notifyOnUpdate", () -> Boolean.toString(ConfigYml.NOTIFY_ON_UPDATE)));
 
         // currencies.yml
-        metrics.addCustomChart(new SimplePie("usingEconomyVault", () -> Boolean.toString(VaultEconomyHook.USED)));
+        metrics.addCustomChart(new SimplePie("usingEconomyVault", () -> Boolean.toString(USING_ECONOMY_VAULT)));
+        metrics.addCustomChart(new SimplePie("usingStorageIntegration", () -> Boolean.toString(USING_STORAGE_INTEGRATION)));
+        metrics.addCustomChart(new SimplePie("usingFileStorage", () -> Boolean.toString(USING_FILE_STORAGE)));
+        metrics.addCustomChart(new SimplePie("usingSqlStorage", () -> Boolean.toString(USING_SQL_STORAGE)));
 
         // in-game statistics
         metrics.addCustomChart(new SingleLineChart("totalCoinsCreated", () -> totalCoinsCreated.getAndSet(0)));

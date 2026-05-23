@@ -6,6 +6,7 @@ import community.coins.plugin.economy.DefinedCurrency;
 import community.coins.plugin.economy.EconomyHook;
 import community.coins.plugin.economy.EconomyService;
 import community.coins.plugin.economy.storage.CurrencyBalanceStorage;
+import community.coins.plugin.misc.MetricsHandler;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -24,8 +25,6 @@ import java.util.logging.Level;
 public final class VaultEconomyHook extends EconomyHook {
     private @Nullable VaultEconomyProvider provider;
     private @Nullable Economy economy;
-
-    public static boolean USED = false; // bStats
 
     public VaultEconomyHook(CoinsCore coins, EconomyService service) {
         super(coins, service, "Vault");
@@ -59,7 +58,7 @@ public final class VaultEconomyHook extends EconomyHook {
             return false;
         }
 
-        USED = true;
+        MetricsHandler.USING_ECONOMY_VAULT = true;
         if (economy != null) {
             return true;
         }

@@ -10,6 +10,7 @@ import community.coins.plugin.economy.storage.CurrencyBalanceStorage;
 import community.coins.plugin.economy.storage.CurrencyStorage;
 import community.coins.plugin.economy.storage.FileStorage;
 import community.coins.plugin.economy.storage.SqlStorage;
+import community.coins.plugin.misc.MetricsHandler;
 import community.coins.plugin.util.MessagePosition;
 import community.coins.plugin.util.Util;
 import org.bukkit.configuration.ConfigurationSection;
@@ -96,6 +97,12 @@ public final class CurrenciesConfig extends FileConfig<DefinedCurrency> {
         // clear all currencies and reset economies before parsing all updates
         coins.getEconomyService().clearEconomies();
 
+        // clear metrics
+        MetricsHandler.USING_ECONOMY_VAULT = false;
+        MetricsHandler.USING_SQL_STORAGE = false;
+        MetricsHandler.USING_FILE_STORAGE = false;
+        MetricsHandler.USING_STORAGE_INTEGRATION = false;
+
         Map<String, DefinedCurrency> configured = new HashMap<>();
         for (String name : currenciesSection.getKeys(false)) {
             ConfigurationSection section = currenciesSection.getConfigurationSection(name);
@@ -158,6 +165,7 @@ public final class CurrenciesConfig extends FileConfig<DefinedCurrency> {
                     if ("sql".equalsIgnoreCase(integrationStorage)) {
                         if (sqlEnabled) {
                             storage = new SqlStorage(coins, service, definedCurrency.getIdentifier());
+                            MetricsHandler.USING_SQL_STORAGE = true;
                         }
                         else {
                             addWarn("Cannot register integration for currency '%s' because SQL storage is not configured.".formatted(id));
@@ -165,6 +173,7 @@ public final class CurrenciesConfig extends FileConfig<DefinedCurrency> {
                     }
                     else if ("file".equalsIgnoreCase(integrationStorage)) {
                         storage = new FileStorage(coins, definedCurrency.getIdentifier());
+                        MetricsHandler.USING_FILE_STORAGE = true;
                     }
 
                     if (storage == null) {
@@ -176,6 +185,7 @@ public final class CurrenciesConfig extends FileConfig<DefinedCurrency> {
                         definedCurrency.getHook().registerIntegration(
                             configWarns, definedCurrency, new CurrencyBalanceStorage(coins, storage)
                         );
+                        MetricsHandler.USING_STORAGE_INTEGRATION = true;
                     }
                 }
             }
