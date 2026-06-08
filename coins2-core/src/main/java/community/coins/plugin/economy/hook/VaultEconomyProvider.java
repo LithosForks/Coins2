@@ -33,6 +33,10 @@ public final class VaultEconomyProvider implements Economy {
     private static final EconomyResponse NOT_SUPPORTED =
         new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Not supported");
 
+    public CurrencyBalanceStorage getStorage() {
+        return storage;
+    }
+
     private @Nullable UUID getUuid(@Nullable String username) {
         if (username == null) {
             return null;
