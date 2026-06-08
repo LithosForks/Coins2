@@ -3,6 +3,7 @@ package community.coins.plugin.economy.hook;
 import community.coins.plugin.CoinsCore;
 import community.coins.plugin.economy.DefinedCurrency;
 import community.coins.plugin.economy.storage.CurrencyBalanceStorage;
+import community.coins.plugin.event.BalanceChangeEvent;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.OfflinePlayer;
@@ -181,6 +182,14 @@ public final class VaultEconomyProvider implements Economy {
     }
 
     public EconomyResponse withdraw(UUID uuid, double amount) {
+        double balance = storage.getCachedBalance(uuid);
+        BalanceChangeEvent event = new BalanceChangeEvent(coins.getServer().isPrimaryThread(), uuid, -amount, balance, currency);
+
+        coins.getServer().getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.FAILURE, "Withdraw canceled");
+        }
+
         storage.withdraw(uuid, amount);
         return new EconomyResponse(amount, storage.getCachedBalance(uuid), EconomyResponse.ResponseType.SUCCESS, null);
     }
@@ -215,6 +224,14 @@ public final class VaultEconomyProvider implements Economy {
     }
 
     public EconomyResponse deposit(UUID uuid, double amount) {
+        double balance = storage.getCachedBalance(uuid);
+        BalanceChangeEvent event = new BalanceChangeEvent(coins.getServer().isPrimaryThread(), uuid, amount, balance, currency);
+
+        coins.getServer().getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.FAILURE, "Deposit canceled");
+        }
+
         storage.deposit(uuid, amount);
         return new EconomyResponse(amount, storage.getCachedBalance(uuid), EconomyResponse.ResponseType.SUCCESS, null);
     }

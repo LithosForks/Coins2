@@ -1,11 +1,11 @@
 package community.coins.plugin.event;
 
+import community.coins.plugin.economy.DefinedCurrency;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jspecify.annotations.NullMarked;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
@@ -15,27 +15,33 @@ import java.util.UUID;
 @NullMarked
 public final class BalanceChangeEvent extends Event implements Cancellable {
     private final UUID uuid;
-    private final BigDecimal transactionAmount;
-    private final BigDecimal previousBalance;
+    private final double transactionAmount;
+    private final double previousBalance;
+    private final DefinedCurrency currency;
 
-    public BalanceChangeEvent(boolean async, UUID uuid, BigDecimal transactionAmount, BigDecimal previousBalance) {
+    public BalanceChangeEvent(boolean async, UUID uuid, double transactionAmount, double previousBalance, DefinedCurrency currency) {
         super(async);
 
         this.uuid = uuid;
         this.transactionAmount = transactionAmount;
         this.previousBalance = previousBalance;
+        this.currency = currency;
     }
 
     public UUID getUuid() {
         return uuid;
     }
 
-    public BigDecimal getTransactionAmount() {
+    public double getTransactionAmount() {
         return transactionAmount;
     }
 
-    public BigDecimal getPreviousBalance() {
+    public double getPreviousBalance() {
         return previousBalance;
+    }
+
+    public DefinedCurrency getCurrency() {
+        return currency;
     }
 
     private boolean cancelled;
