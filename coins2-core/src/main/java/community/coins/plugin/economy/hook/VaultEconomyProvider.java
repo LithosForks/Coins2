@@ -81,6 +81,10 @@ public final class VaultEconomyProvider implements Economy {
         return currency.getSingularName();
     }
 
+    public boolean hasAccount(UUID uuid) {
+        return storage.hasExistingBalance(uuid);
+    }
+
     @Override
     public boolean hasAccount(String playerName) {
         UUID uuid = getUuid(playerName);
@@ -88,7 +92,7 @@ public final class VaultEconomyProvider implements Economy {
             return false;
         }
 
-        return storage.hasExistingBalance(uuid);
+        return hasAccount(uuid);
     }
 
     @Override
@@ -97,7 +101,7 @@ public final class VaultEconomyProvider implements Economy {
             return false;
         }
 
-        return storage.hasExistingBalance(player.getUniqueId());
+        return hasAccount(player.getUniqueId());
     }
 
     @Override
@@ -110,6 +114,10 @@ public final class VaultEconomyProvider implements Economy {
         return hasAccount(player);
     }
 
+    public double getBalance(UUID uuid) {
+        return storage.getCachedBalance(uuid);
+    }
+
     @Override
     public double getBalance(String playerName) {
         UUID uuid = getUuid(playerName);
@@ -117,7 +125,7 @@ public final class VaultEconomyProvider implements Economy {
             return 0;
         }
 
-        return storage.getCachedBalance(uuid);
+        return getBalance(uuid);
     }
 
     @Override
@@ -126,7 +134,7 @@ public final class VaultEconomyProvider implements Economy {
             return 0;
         }
 
-        return storage.getCachedBalance(player.getUniqueId());
+        return getBalance(player.getUniqueId());
     }
 
     @Override
@@ -139,6 +147,10 @@ public final class VaultEconomyProvider implements Economy {
         return getBalance(player);
     }
 
+    public boolean has(UUID uuid, double amount) {
+        return amount >= 0 && storage.getCachedBalance(uuid) >= amount;
+    }
+
     @Override
     public boolean has(String playerName, double amount) {
         UUID uuid = getUuid(playerName);
@@ -146,7 +158,7 @@ public final class VaultEconomyProvider implements Economy {
             return false;
         }
 
-        return amount >= 0 && storage.getCachedBalance(uuid) >= amount;
+        return has(uuid, amount);
     }
 
     @Override
@@ -155,7 +167,7 @@ public final class VaultEconomyProvider implements Economy {
             return false;
         }
 
-        return amount >= 0 && storage.getCachedBalance(player.getUniqueId()) >= amount;
+        return has(player.getUniqueId(), amount);
     }
 
     @Override
@@ -168,6 +180,11 @@ public final class VaultEconomyProvider implements Economy {
         return has(player, amount);
     }
 
+    public EconomyResponse withdraw(UUID uuid, double amount) {
+        storage.withdraw(uuid, amount);
+        return new EconomyResponse(amount, storage.getCachedBalance(uuid), EconomyResponse.ResponseType.SUCCESS, null);
+    }
+
     @Override
     public EconomyResponse withdrawPlayer(String playerName, double amount) {
         UUID uuid = getUuid(playerName);
@@ -175,8 +192,7 @@ public final class VaultEconomyProvider implements Economy {
             return UNKNOWN_PLAYER;
         }
 
-        storage.withdraw(uuid, amount);
-        return new EconomyResponse(amount, storage.getCachedBalance(uuid), EconomyResponse.ResponseType.SUCCESS, null);
+        return withdraw(uuid, amount);
     }
 
     @Override
@@ -185,8 +201,7 @@ public final class VaultEconomyProvider implements Economy {
             return UNKNOWN_PLAYER;
         }
 
-        storage.withdraw(player.getUniqueId(), amount);
-        return new EconomyResponse(amount, storage.getCachedBalance(player.getUniqueId()), EconomyResponse.ResponseType.SUCCESS, null);
+        return withdraw(player.getUniqueId(), amount);
     }
 
     @Override
@@ -199,6 +214,11 @@ public final class VaultEconomyProvider implements Economy {
         return withdrawPlayer(player, amount);
     }
 
+    public EconomyResponse deposit(UUID uuid, double amount) {
+        storage.deposit(uuid, amount);
+        return new EconomyResponse(amount, storage.getCachedBalance(uuid), EconomyResponse.ResponseType.SUCCESS, null);
+    }
+
     @Override
     public EconomyResponse depositPlayer(String playerName, double amount) {
         UUID uuid = getUuid(playerName);
@@ -206,8 +226,7 @@ public final class VaultEconomyProvider implements Economy {
             return UNKNOWN_PLAYER;
         }
 
-        storage.deposit(uuid, amount);
-        return new EconomyResponse(amount, storage.getCachedBalance(uuid), EconomyResponse.ResponseType.SUCCESS, null);
+        return deposit(uuid, amount);
     }
 
     @Override
@@ -216,8 +235,7 @@ public final class VaultEconomyProvider implements Economy {
             return UNKNOWN_PLAYER;
         }
 
-        storage.deposit(player.getUniqueId(), amount);
-        return new EconomyResponse(amount, storage.getCachedBalance(player.getUniqueId()), EconomyResponse.ResponseType.SUCCESS, null);
+        return deposit(player.getUniqueId(), amount);
     }
 
     @Override
