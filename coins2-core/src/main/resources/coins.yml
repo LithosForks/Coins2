@@ -28,7 +28,7 @@ default:
     singular: '<#F9CE64>Coin'
     plural: '<#F9CE64>Coins'
   # Currency identifier to use for this coin, as defined in currencies.yml.
-  currency: 'vault'
+  currency: 'cns'
   # Don't allow coin modifications by crafting, anvil, etc.
   immutable: true
   meta:

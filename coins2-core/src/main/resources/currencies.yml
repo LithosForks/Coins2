@@ -38,7 +38,7 @@ currencies:
   #  this identifier makes it impossible to pick up already existing coins with this
   #  currency. Do not change this identifier when there are coins in circulation! This
   #  identifier is also used for storaging balances, if enabled (so don't change it).
-  'vault':
+  'cns':
     # The economy, or really the plugin to use. This economy name is case-sensitive. Only
     #  Vault is currently supported. Some plugins allow for multiple currencies.
     economy: 'Vault'
@@ -50,11 +50,11 @@ currencies:
     integration:
       # Setting from 'true' to 'false' requires a server restart, to give other plugins a
       #  chance to integrate the plugin.
-      enabled: false
-      storage: 'file' # or 'sql'
+      enabled: true
+      storage: 'sql' # or 'sql'
     # Amount of decimal points to render values for this currency. Decimals set to 2 will
     #  render as 1.23.
-    decimals: 2
+    decimals: 0
     # Currency symbol for this currency. Can be used as a placeholder by using {symbol}.
     symbol: '¢'
     # The singular and plural names of this currency.

@@ -24,4 +24,4 @@
 locale: 'en-US'
 
 # Show a message on start-up when an update is available for the plugin.
-notify-on-update: true
+notify-on-update: false

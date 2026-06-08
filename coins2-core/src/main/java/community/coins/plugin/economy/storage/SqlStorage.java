@@ -31,31 +31,18 @@ public final class SqlStorage implements CurrencyStorage {
         this.config = service.getCurrenciesConfig();
         this.currencyIdentifier = currencyIdentifier;
 
-        new Query("""
-            CREATE TABLE IF NOT EXISTS coin_balances (\
-            uuid CHAR(36) NOT NULL,\
-            currency VARCHAR(50) NOT NULL,\
-            balance DECIMAL(19, 6) NOT NULL DEFAULT 0,\
-            queued_balance DECIMAL(19, 6) NOT NULL DEFAULT 0,\
-            received_inactive DECIMAL(19, 6) NOT NULL DEFAULT 0,\
-            PRIMARY KEY (uuid, currency),\
-            INDEX (currency),\
-            INDEX (balance),\
-            INDEX (queued_balance),\
-            INDEX (received_inactive)\
-            )"""
-        ).bind().executeUpdate();
+        // lithos: table already exists
     }
 
     private final Query loadBalancesQuery =
-        new Query("SELECT uuid, balance, received_inactive FROM coin_balances WHERE currency = ?");
+        new Query("SELECT entity_uuid, balance, received_inactive FROM coin_balances WHERE currency = ?");
 
     @Override
     public void loadBalances(Consumer<Collection<BalanceData>> balances) {
         loadBalancesQuery.bind(currencyIdentifier).executeQuery(data -> {
             List<BalanceData> balanceData = new ArrayList<>();
             while (data.next()) {
-                String rawUuid = data.getString("uuid");
+                String rawUuid = data.getString("entity_uuid");
                 if (rawUuid == null) {
                     continue;
                 }
@@ -70,7 +57,7 @@ public final class SqlStorage implements CurrencyStorage {
     }
 
     private final Query createAccountQuery =
-        new Query("INSERT INTO coin_balances (uuid, balance, currency) VALUES (?, ?, ?)");
+        new Query("INSERT INTO coin_balances (entity_uuid, balance, currency) VALUES (?, ?, ?)");
 
     @Override
     public void createAccount(UUID uuid, double amount) {
@@ -80,7 +67,7 @@ public final class SqlStorage implements CurrencyStorage {
 
     // todo insert into ... on duplicate key
     private final Query withdrawQuery =
-        new Query("UPDATE coin_balances SET balance = balance - ? WHERE uuid = ? AND currency = ?");
+        new Query("UPDATE coin_balances SET balance = balance - ? WHERE entity_uuid = ? AND currency = ?");
 
     @Override
     public void withdraw(UUID uuid, double amount) {
@@ -89,7 +76,7 @@ public final class SqlStorage implements CurrencyStorage {
 
     // todo insert into ... on duplicate key
     private final Query depositQuery =
-        new Query("UPDATE coin_balances SET balance = balance + ? WHERE uuid = ? AND currency = ?");
+        new Query("UPDATE coin_balances SET balance = balance + ? WHERE entity_uuid = ? AND currency = ?");
 
     @Override
     public void deposit(UUID uuid, double amount) {
@@ -98,7 +85,7 @@ public final class SqlStorage implements CurrencyStorage {
 
     // todo insert into ... on duplicate key
     private final Query addInactiveCoinsQuery =
-        new Query("UPDATE coin_balances SET received_inactive = received_inactive + ? WHERE uuid = ? AND currency = ?");
+        new Query("UPDATE coin_balances SET received_inactive = received_inactive + ? WHERE entity_uuid = ? AND currency = ?");
 
     @Override
     public void addInactiveCoins(UUID uuid, double amount) {
@@ -107,7 +94,7 @@ public final class SqlStorage implements CurrencyStorage {
 
     // todo insert into ... on duplicate key
     private final Query resetInactiveCoinsQuery =
-        new Query("UPDATE coin_balances SET received_inactive = 0 WHERE uuid = ? AND currency = ?");
+        new Query("UPDATE coin_balances SET received_inactive = 0 WHERE entity_uuid = ? AND currency = ?");
 
     @Override
     public void resetInactiveCoins(UUID uuid) {
