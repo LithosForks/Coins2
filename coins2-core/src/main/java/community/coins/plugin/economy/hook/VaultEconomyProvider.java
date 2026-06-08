@@ -73,7 +73,7 @@ public final class VaultEconomyProvider implements Economy {
 
     @Override
     public String format(double amount) {
-        return currency.formatAmount(amount);
+        return currency.format(amount);
     }
 
     @Override
